@@ -5,12 +5,13 @@ import { Icon } from './Icon'
 type HeroProps = {
   url: string
   status: Status
+  error: string
   onUrlChange: (url: string) => void
   onClear: () => void
   onFetch: () => void
 }
 
-export function Hero({ url, status, onUrlChange, onClear, onFetch }: HeroProps) {
+export function Hero({ url, status, error, onUrlChange, onClear, onFetch }: HeroProps) {
   return (
     <section className="hero">
       <div className="eyebrow"><Icon name="spark" size={14} /> TikTok carousel downloader</div>
@@ -30,7 +31,7 @@ export function Hero({ url, status, onUrlChange, onClear, onFetch }: HeroProps) 
           {status === Status.Loading ? <><span className="spinner" /> Fetching images…</> : <>Fetch Images <Icon name="arrow" /></>}
         </Button>
       </div>
-      {status === Status.Error && <div className="field-error">Enter a valid TikTok carousel URL to continue.</div>}
+      {status === Status.Error && <div className="field-error">{error}</div>}
     </section>
   )
 }

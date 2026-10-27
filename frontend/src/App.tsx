@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { fetchTiktokImages } from './api'
 import { ControlsPanel } from './components/ControlsPanel'
 import { Header } from './components/Header'
 import { Hero } from './components/Hero'
@@ -11,8 +12,10 @@ function App() {
   const [format, setFormat] = useState<Format>(Format.PNG)
   const [columns, setColumns] = useState(2)
   const [spacing, setSpacing] = useState(12)
-  const [url, setUrl] = useState('https://www.tiktok.com/@explore/video/7362850142')
-  const [status, setStatus] = useState<Status>(Status.Ready)
+  const [url, setUrl] = useState('')
+  const [status, setStatus] = useState<Status>(Status.Idle)
+  const [images, setImages] = useState<string[]>([])
+  const [error, setError] = useState('')
   const [exporting, setExporting] = useState(false)
   const [toast, setToast] = useState(false)
 
@@ -22,19 +25,30 @@ function App() {
     return () => window.clearTimeout(timer)
   }, [toast])
 
-  const fetchImages = () => {
+  const fetchImages = async () => {
     if (!url.includes('tiktok.com')) {
+      setError('Enter a valid TikTok carousel URL to continue.')
       setStatus(Status.Error)
       return
     }
     setStatus(Status.Loading)
-    window.setTimeout(() => setStatus(Status.Ready), 1100)
+    try {
+      const carousel = await fetchTiktokImages(url)
+      setImages(carousel.images)
+      setStatus(Status.Ready)
+    } catch (err) {
+      setImages([])
+      setError(err instanceof Error ? err.message : String(err))
+      setStatus(Status.Error)
+    }
   }
 
   const download = () => {
     setExporting(true)
     window.setTimeout(() => {
-      const blob = new Blob(['SlidesMerger preview export'], { type: 'text/plain' })
+      const blob = new Blob(['SlidesMerger preview export'], {
+        type: 'text/plain',
+      })
       const href = URL.createObjectURL(blob)
       const anchor = document.createElement('a')
       anchor.href = href
@@ -54,8 +68,12 @@ function App() {
         <Hero
           url={url}
           status={status}
+          error={error}
           onUrlChange={setUrl}
-          onClear={() => { setUrl(''); setStatus(Status.Idle) }}
+          onClear={() => {
+            setUrl('')
+            setStatus(Status.Idle)
+          }}
           onFetch={fetchImages}
         />
 
@@ -72,6 +90,7 @@ function App() {
           />
 
           <PreviewPanel
+            images={images}
             layout={layout}
             columns={columns}
             spacing={spacing}
