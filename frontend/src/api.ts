@@ -7,9 +7,7 @@ export type TiktokCarousel = {
 }
 
 export async function fetchTiktokImages(url: string): Promise<TiktokCarousel> {
-  const response = await fetch(
-    `${import.meta.env.VITE_API_BASE_URL}/api/images?url=${encodeURIComponent(url)}`
-  )
+  const response = await fetch(`/api/images?url=${encodeURIComponent(url)}`)
   const data = await response.json().catch(() => null)
 
   if (!response.ok) {
