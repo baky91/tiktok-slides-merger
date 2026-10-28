@@ -1,11 +1,14 @@
 import { Format, Layout } from '../types'
 import { AdvancedSettings } from './AdvancedSettings'
 import { Button } from './Button'
+import { ColumnsStepper } from './ColumnsStepper'
 import { Icon } from './Icon'
 
 type ControlsPanelProps = {
+  imageCount: number
   layout: Layout
   columns: number
+  maxColumns: number
   format: Format
   spacing: number
   onLayoutChange: (layout: Layout) => void
@@ -15,8 +18,10 @@ type ControlsPanelProps = {
 }
 
 export function ControlsPanel({
+  imageCount,
   layout,
   columns,
+  maxColumns,
   format,
   spacing,
   onLayoutChange,
@@ -31,7 +36,7 @@ export function ControlsPanel({
           <div className="section-kicker">Workspace</div>
           <div className="panel-title">Customize your file</div>
         </div>
-        <div className="image-count"><Icon name="image" size={15} /> 6 images</div>
+        <div className="image-count"><Icon name="image" size={15} /> {imageCount} images</div>
       </div>
 
       <div className="control-section">
@@ -58,11 +63,7 @@ export function ControlsPanel({
               <div className="sub-label">Grid columns</div>
               <div className="sub-copy">Set the number of columns</div>
             </div>
-            <div className="stepper">
-              <Button aria-label="Decrease columns" onClick={() => onColumnsChange(Math.max(2, columns - 1))}><Icon name="minus" size={14} /></Button>
-              <span>{columns}</span>
-              <Button aria-label="Increase columns" onClick={() => onColumnsChange(Math.min(3, columns + 1))}><Icon name="plus" size={14} /></Button>
-            </div>
+            <ColumnsStepper columns={columns} max={maxColumns} onChange={onColumnsChange} />
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { fetchTiktokImages } from './api'
 import { ControlsPanel } from './components/ControlsPanel'
 import { Header } from './components/Header'
@@ -16,10 +16,29 @@ function App() {
   const [url, setUrl] = useState('')
   const [status, setStatus] = useState<Status>(Status.Idle)
   const [images, setImages] = useState<string[]>([])
+  const [excludedImages, setExcludedImages] = useState<Set<string>>(new Set())
   const [error, setError] = useState('')
   const [exporting, setExporting] = useState(false)
   const [toast, setToast] = useState(false)
   const quickSettingsRef = useRef<HTMLDivElement>(null)
+
+  const activeImages = useMemo(() => images.filter((image) => !excludedImages.has(image)), [images, excludedImages])
+  // A grid can have as many columns as there are selected images
+  const maxColumns = Math.max(2, activeImages.length)
+  const gridColumns = Math.min(columns, maxColumns)
+
+  const toggleImage = (image: string) => {
+    setExcludedImages((current) => {
+      const next = new Set(current)
+      if (next.has(image)) next.delete(image)
+      else next.add(image)
+      return next
+    })
+  }
+
+  const toggleAllImages = () => {
+    setExcludedImages((current) => (current.size === 0 ? new Set(images) : new Set()))
+  }
 
   useEffect(() => {
     if (!toast) return
@@ -41,6 +60,7 @@ function App() {
     try {
       const carousel = await fetchTiktokImages(url)
       setImages(carousel.images)
+      setExcludedImages(new Set())
       setStatus(Status.Ready)
     } catch (err) {
       setImages([])
@@ -85,8 +105,10 @@ function App() {
 
         <section className="workspace">
           <ControlsPanel
+            imageCount={activeImages.length}
             layout={layout}
-            columns={columns}
+            columns={gridColumns}
+            maxColumns={maxColumns}
             format={format}
             spacing={spacing}
             onLayoutChange={setLayout}
@@ -98,7 +120,8 @@ function App() {
           <QuickSettings
             ref={quickSettingsRef}
             layout={layout}
-            columns={columns}
+            columns={gridColumns}
+            maxColumns={maxColumns}
             format={format}
             onLayoutChange={setLayout}
             onColumnsChange={setColumns}
@@ -107,12 +130,15 @@ function App() {
 
           <PreviewPanel
             images={images}
+            activeImages={activeImages}
             layout={layout}
-            columns={columns}
+            columns={gridColumns}
             spacing={spacing}
             format={format}
             status={status}
             exporting={exporting}
+            onToggleImage={toggleImage}
+            onToggleAllImages={toggleAllImages}
             onDownload={download}
           />
         </section>

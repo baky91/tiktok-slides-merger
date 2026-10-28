@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Layout } from '../types'
 import { Button } from './Button'
 import { Icon } from './Icon'
 
 type PreviewCanvasProps = {
   images: string[]
+  // The carousel has slides, even if none of them is currently selected
+  hasSlides: boolean
   layout: Layout
   columns: number
   spacing: number
@@ -41,7 +43,7 @@ function gesture(points: Point[]) {
   }
 }
 
-export function PreviewCanvas({ images, layout, columns, spacing, loading }: PreviewCanvasProps) {
+export function PreviewCanvas({ images, hasSlides, layout, columns, spacing, loading }: PreviewCanvasProps) {
   const [view, setView] = useState<View>({ x: 0, y: 0, scale: 1 })
   const stageRef = useRef<HTMLDivElement>(null)
   const paperRef = useRef<HTMLDivElement>(null)
@@ -49,11 +51,10 @@ export function PreviewCanvas({ images, layout, columns, spacing, loading }: Pre
   // Once the user moves or zooms, stop auto-fitting the content
   const interacted = useRef(false)
 
-  const canvasClass = useMemo(() => {
-    if (layout === Layout.Vertical) return 'canvas-images vertical'
-    if (layout === Layout.Horizontal) return 'canvas-images horizontal'
-    return `canvas-images grid cols-${columns}`
-  }, [layout, columns])
+  const columnCount =
+    layout === Layout.Vertical ? 1
+    : layout === Layout.Horizontal ? images.length
+    : Math.min(columns, images.length)
 
   const fit = useCallback(() => {
     const stage = stageRef.current
@@ -172,11 +173,15 @@ export function PreviewCanvas({ images, layout, columns, spacing, loading }: Pre
       {loading ? (
         <div className="loading-state"><span className="spinner dark" /><strong>Fetching images…</strong><small>Reading your TikTok carousel</small></div>
       ) : images.length === 0 ? (
-        <div className="loading-state"><Icon name="image" size={22} /><strong>No images yet</strong><small>Paste a TikTok carousel link to see the preview</small></div>
+        hasSlides ? (
+          <div className="loading-state"><Icon name="image" size={22} /><strong>No slides selected</strong><small>Select at least one slide to see the preview</small></div>
+        ) : (
+          <div className="loading-state"><Icon name="image" size={22} /><strong>No images yet</strong><small>Paste a TikTok carousel link to see the preview</small></div>
+        )
       ) : (
         <div className="preview-viewport" style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})` }}>
           <div className="paper" ref={paperRef}>
-            <div className={canvasClass} style={{ gap: `${Math.max(3, spacing / 2)}px` }}>
+            <div className="canvas-images" style={{ gridTemplateColumns: `repeat(${columnCount}, var(--cell-width))`, gap: `${Math.max(3, spacing / 2)}px` }}>
               {images.map((image, index) => (
                 <div className="photo-card" key={image}>
                   {/* TikTok's CDN rejects requests carrying a foreign Referer */}
