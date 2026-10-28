@@ -1,20 +1,14 @@
-import { createServer } from "node:http";
+import express from "express";
+import path from "node:path";
 import { extractTiktokImages, resolveTiktokUrl } from "./scrapper.js";
+import { fileURLToPath } from "node:url";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 3001);
+const NODE_ENV = process.env.NODE_ENV || "development";
+const isProduction = NODE_ENV === "production";
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-};
-
-function sendJson(res, status, body) {
-  res.writeHead(status, {
-    ...CORS_HEADERS,
-    "Content-Type": "application/json; charset=utf-8",
-  });
-  res.end(JSON.stringify(body));
-}
+const app = express();
 
 function isTiktokUrl(value) {
   try {
@@ -25,49 +19,45 @@ function isTiktokUrl(value) {
   }
 }
 
-const server = createServer(async (req, res) => {
-  const { pathname, searchParams } = new URL(
-    req.url,
-    `http://${req.headers.host}`,
-  );
+// EX: GET /api/images?url=https://www.tiktok.com/@user/photo/123
+app.get("/api/images", async (req, res) => {
+  const tiktokUrl = req.query.url;
 
-  if (req.method === "OPTIONS") {
-    res.writeHead(204, CORS_HEADERS);
-    return res.end();
+  if (!tiktokUrl || !isTiktokUrl(tiktokUrl)) {
+    return res.status(400).json({
+      error: "Missing or invalid 'url' parameter",
+    });
   }
 
-  if (req.method === "GET" && pathname === "/health") {
-    return sendJson(res, 200, { status: "ok" });
+  let resolvedUrl;
+  try {
+    resolvedUrl = await resolveTiktokUrl(tiktokUrl);
+    resolvedUrl = resolvedUrl.replace("photo", "video");
+  } catch (e) {
+    return res.status(400).json({
+      error: e.message,
+    });
   }
 
-  // GET /api/images?url=https://www.tiktok.com/@user/photo/123
-  if (req.method === "GET" && pathname === "/api/images") {
-    const tiktokUrl = searchParams.get("url").replace("photo", "video");
-    if (!tiktokUrl || !isTiktokUrl(tiktokUrl)) {
-      return sendJson(res, 400, {
-        error: "Missing or invalid 'url' parameter",
-      });
-    }
-
-    let resolvedUrl;
-    try {
-      resolvedUrl = await resolveTiktokUrl(tiktokUrl);
-      resolvedUrl = resolvedUrl.replace("photo", "video");
-    } catch (error) {
-      return sendJson(res, 400, { error: error.message });
-    }
-
-    try {
-      const result = await extractTiktokImages(resolvedUrl);
-      return sendJson(res, 200, { url: resolvedUrl, ...result });
-    } catch (error) {
-      return sendJson(res, 502, { error: error.message });
-    }
+  try {
+    const result = await extractTiktokImages(resolvedUrl);
+    return res.status(200).json({
+      url: resolvedUrl,
+      ...result,
+    });
+  } catch (e) {
+    const status = e.message.includes("timeout") ? 502 : 400;
+    return res.status(status).json({ error: e.message });
   }
-
-  return sendJson(res, 404, { error: "Route not found" });
 });
 
-server.listen(PORT, () => {
-  console.log(`Scraping server running on http://localhost:${PORT}`);
+if (isProduction) {
+  app.use(express.static(path.join(__dirname, "public")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+  });
+}
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
