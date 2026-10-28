@@ -252,7 +252,8 @@ main {
   grid-template-columns: 330px minmax(0, 1fr);
   border: 1px solid #e2dfe7;
   border-radius: 19px;
-  overflow: hidden;
+  /* clip (not hidden) so the mobile quick settings bar can stay sticky */
+  overflow: clip;
   background: white;
   box-shadow: 0 22px 60px rgba(25, 20, 39, .08);
 }
@@ -565,8 +566,7 @@ main {
 }
 
 .preview-stage {
-  min-height: 505px;
-  padding: 30px;
+  height: 505px;
   display: grid;
   place-items: center;
   position: relative;
@@ -574,6 +574,50 @@ main {
   background-image: radial-gradient(#d8d5dc .7px, transparent .7px);
   background-size: 13px 13px;
   overflow: hidden;
+  user-select: none;
+}
+
+.preview-stage.navigable {
+  cursor: grab;
+  /* Touch gestures drive pan & zoom instead of scrolling the page */
+  touch-action: none;
+}
+
+.preview-stage.navigable:active {
+  cursor: grabbing;
+}
+
+.preview-viewport {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.preview-hint {
+  position: absolute;
+  left: 17px;
+  bottom: 22px;
+  color: #8c8793;
+  font-size: 9px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.hint-touch {
+  display: none;
+}
+
+@media (hover: none) {
+  .hint-pointer {
+    display: none;
+  }
+
+  .hint-touch {
+    display: inline;
+  }
 }
 
 .paper {
@@ -612,8 +656,6 @@ main {
 
 .paper:has(.vertical) {
   width: min(240px, 48%);
-  max-height: 440px;
-  overflow: hidden;
 }
 
 .photo-card {
@@ -630,10 +672,6 @@ main {
   display: block;
   object-fit: cover;
   transition: transform .35s;
-}
-
-.photo-card:hover img {
-  transform: scale(1.025);
 }
 
 .photo-caption {
@@ -692,11 +730,17 @@ main {
   color: #706b75;
 }
 
-.zoom-control span {
+.zoom-control .zoom-value {
+  width: auto;
+  min-width: 34px;
   padding: 0 4px;
   font-size: 9px;
   font-weight: 700;
   color: #706b75;
+}
+
+.quick-settings {
+  display: none;
 }
 
 .loading-state {
@@ -836,7 +880,52 @@ main {
   }
 
   .preview-stage {
-    min-height: 480px;
+    height: 480px;
+  }
+
+  .quick-settings {
+    position: sticky;
+    top: 70px;
+    z-index: 10;
+    scroll-margin-top: 70px;
+    padding: 9px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #ece9ef;
+    background: rgba(255, 255, 255, .92);
+    backdrop-filter: blur(12px);
+  }
+
+  .quick-layouts {
+    display: flex;
+    gap: 4px;
+  }
+
+  .quick-layouts button {
+    width: 34px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #e5e2e8;
+    border-radius: 8px;
+    color: #8c8791;
+    background: #fff;
+  }
+
+  .quick-layouts button.selected {
+    border-color: #7557f4;
+    color: #593bd7;
+    background: #f7f5ff;
+  }
+
+  .quick-settings .segmented {
+    margin: 0 0 0 auto;
+    width: 104px;
+  }
+
+  .quick-settings .segmented button {
+    height: 26px;
   }
 }
 
@@ -891,6 +980,11 @@ main {
     box-shadow: 0 7px 25px rgba(24, 20, 36, .06);
   }
 
+  /* iOS Safari zooms into inputs whose font-size is below 16px */
+  .url-field input {
+    font-size: 16px;
+  }
+
   .fetch-button {
     width: 100%;
   }
@@ -914,8 +1008,12 @@ main {
   }
 
   .preview-stage {
-    min-height: 390px;
-    padding: 24px 10px 50px;
+    height: clamp(340px, 58svh, 480px);
+  }
+
+  .quick-settings {
+    top: 61px;
+    scroll-margin-top: 61px;
   }
 
   .paper {

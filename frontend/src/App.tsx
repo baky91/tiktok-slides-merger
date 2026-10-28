@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { fetchTiktokImages } from './api'
 import { ControlsPanel } from './components/ControlsPanel'
 import { Header } from './components/Header'
 import { Hero } from './components/Hero'
 import { PreviewPanel } from './components/PreviewPanel'
+import { QuickSettings } from './components/QuickSettings'
 import { Toast } from './components/Toast'
 import { Format, Layout, Status } from './types'
 
@@ -18,6 +19,7 @@ function App() {
   const [error, setError] = useState('')
   const [exporting, setExporting] = useState(false)
   const [toast, setToast] = useState(false)
+  const quickSettingsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!toast) return
@@ -32,6 +34,10 @@ function App() {
       return
     }
     setStatus(Status.Loading)
+    // On mobile the preview sits below the controls: bring it into view
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      quickSettingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
     try {
       const carousel = await fetchTiktokImages(url)
       setImages(carousel.images)
@@ -87,6 +93,16 @@ function App() {
             onColumnsChange={setColumns}
             onFormatChange={setFormat}
             onSpacingChange={setSpacing}
+          />
+
+          <QuickSettings
+            ref={quickSettingsRef}
+            layout={layout}
+            columns={columns}
+            format={format}
+            onLayoutChange={setLayout}
+            onColumnsChange={setColumns}
+            onFormatChange={setFormat}
           />
 
           <PreviewPanel
