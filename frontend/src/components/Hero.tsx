@@ -38,6 +38,8 @@ export function Hero({
           <Icon name="link" size={20} />
           <input
             aria-label="TikTok carousel URL"
+            name="url-input"
+            id="url-input"
             value={url}
             onChange={(event) => onUrlChange(event.target.value)}
             placeholder="Paste your TikTok carousel URL…"

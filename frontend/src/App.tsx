@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { fetchTiktokImages } from './api'
+import { fetchTiktokImages, mergeTiktokImages } from './api'
 import { ControlsPanel } from './components/ControlsPanel'
 import { Header } from './components/Header'
 import { Hero } from './components/Hero'
@@ -18,6 +18,8 @@ function App() {
   const [status, setStatus] = useState<Status>(Status.Idle)
   const [images, setImages] = useState<string[]>([])
   const [excludedImages, setExcludedImages] = useState<Set<string>>(new Set())
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [background, setBackground] = useState<string>('#ffffff')
   const [error, setError] = useState('')
   const [exporting, setExporting] = useState(false)
   const [toast, setToast] = useState(false)
@@ -80,14 +82,25 @@ function App() {
 
   const download = () => {
     setExporting(true)
-    window.setTimeout(() => {
-      const blob = new Blob(['SlidesMerger preview export'], {
-        type: 'text/plain',
+    window.setTimeout(async () => {
+      const blob = await mergeTiktokImages({
+        layout: layout,
+        columns: columns,
+        spacing: spacing,
+        background: background,
+        qualityPreset: quality,
+        images: activeImages,
       })
+
+      const dateTimeStr = new Date()
+        .toISOString()
+        .replace(/[:.]/g, '-')
+        .slice(0, 19)
+
       const href = URL.createObjectURL(blob)
       const anchor = document.createElement('a')
       anchor.href = href
-      anchor.download = `slidesmerger-export.${format.toLowerCase()}.txt`
+      anchor.download = `slidesmerger-export-${dateTimeStr}.${format.toLowerCase()}`
       anchor.click()
       URL.revokeObjectURL(href)
       setExporting(false)
