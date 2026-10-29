@@ -3,6 +3,44 @@ import sharp from "sharp";
 // libjpeg cannot encode images larger than 65500 px on either side
 export const JPEG_MAX_SIDE = 65500;
 
+// Only TikTok's CDNs can be downloaded, so the server cannot be used to
+// fetch arbitrary URLs (tiktokcdn.com, tiktokcdn-eu.com, tiktokcdn-us.com…)
+const ALLOWED_HOST = /(^|\.)tiktokcdn(-[a-z]+)?\.com$/;
+const DOWNLOAD_TIMEOUT = 15_000;
+const MAX_DOWNLOAD_SIZE = 20_000_000;
+
+// Downloads URLs into buffers; file paths and buffers are returned as is
+async function loadImage(image) {
+  if (typeof image !== "string" || !/^https?:\/\//i.test(image)) return image;
+
+  const { hostname } = new URL(image);
+  if (!ALLOWED_HOST.test(hostname))
+    throw new Error(`Host not allowed: ${hostname}`);
+
+  const response = await fetch(image, {
+    signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT),
+  });
+  if (!response.ok)
+    throw new Error(`Download failed (${response.status}): ${hostname}`);
+  if (Number(response.headers.get("content-length")) > MAX_DOWNLOAD_SIZE) {
+    throw new Error(`Image too large: ${hostname}`);
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  if (buffer.length > MAX_DOWNLOAD_SIZE)
+    throw new Error(`Image too large: ${hostname}`);
+  return buffer;
+}
+
+export const QUALITY_PRESETS = {
+  standard: { maxPixels: 8_000_000, quality: 80 },
+  high: { maxPixels: 24_000_000, quality: 90 },
+  max: { maxPixels: 60_000_000, quality: 95 },
+};
+export const LAYOUTS = ["vertical", "horizontal", "grid"];
+export const MAX_IMAGES = 50;
+export const MAX_SPACING = 100;
+
 /**
  * Merges a list of images into a single JPEG.
  *
@@ -10,7 +48,7 @@ export const JPEG_MAX_SIDE = 65500;
  * nothing is upscaled), like the HTML preview grid. A row is as tall as its
  * tallest image, and images are placed in the top-left corner of their cell.
  *
- * @param {(string | Buffer)[]} images File paths or buffers, in display order
+ * @param {(string | Buffer)[]} images URLs, file paths or buffers, in display order
  * @param {object} [options]
  * @param {"vertical" | "horizontal" | "grid"} [options.layout]
  * @param {number} [options.columns] Maximum number of columns in grid layout
@@ -22,7 +60,7 @@ export const JPEG_MAX_SIDE = 65500;
  * @returns {Promise<{ buffer: Buffer, width: number, height: number, scale: number }>}
  */
 export async function mergeImages(
-  images,
+  inputs,
   {
     layout = "grid",
     columns = 2,
@@ -33,9 +71,12 @@ export async function mergeImages(
     quality = 90,
   } = {},
 ) {
-  if (images && images.length === 0) {
+  if (inputs && inputs.length === 0) {
     throw new Error("No images to merge");
   }
+
+  // Downloaded once, then reused for both the metadata and the resizing
+  const images = await Promise.all(inputs.map(loadImage));
 
   let columnCount;
   if (layout === "vertical") {

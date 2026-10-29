@@ -3,7 +3,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { extractTiktokImages, resolveTiktokUrl } from "./scrapper.js";
 import { fileURLToPath } from "node:url";
-import { mergeImages } from "./image-builder.js";
+import {
+  LAYOUTS,
+  MAX_IMAGES,
+  MAX_SPACING,
+  mergeImages,
+  QUALITY_PRESETS,
+} from "./image-builder.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 3001);
@@ -11,6 +17,7 @@ const NODE_ENV = process.env.NODE_ENV || "development";
 const isProduction = NODE_ENV === "production";
 
 const app = express();
+app.use(express.json());
 
 function isTiktokUrl(value) {
   try {
@@ -53,35 +60,82 @@ app.get("/api/images", async (req, res) => {
   }
 });
 
+// Validates the merge request body, filling in defaults for missing options
+function parseMergeBody(body) {
+  const {
+    images,
+    layout = "grid",
+    columns = 2,
+    spacing = 0,
+    background = "#ffffff",
+    qualityPreset = "high",
+  } = body ?? {};
+
+  if (
+    !Array.isArray(images) ||
+    images.length === 0 ||
+    images.length > MAX_IMAGES ||
+    !images.every(
+      (image) => typeof image === "string" && image.startsWith("https://"),
+    )
+  ) {
+    return {
+      error: `'images' must be a list of 1 to ${MAX_IMAGES} https URLs`,
+    };
+  }
+  if (!LAYOUTS.includes(layout)) {
+    return { error: `'layout' must be one of: ${LAYOUTS.join(", ")}` };
+  }
+  if (!Number.isInteger(columns) || columns < 1) {
+    return { error: "'columns' must be a positive integer" };
+  }
+  if (!Number.isInteger(spacing) || spacing < 0 || spacing > MAX_SPACING) {
+    return {
+      error: `'spacing' must be an integer between 0 and ${MAX_SPACING}`,
+    };
+  }
+  if (typeof background !== "string" || !/^#[0-9a-f]{6}$/i.test(background)) {
+    return { error: "'background' must be a hex color like #ffffff" };
+  }
+  const preset = QUALITY_PRESETS[String(qualityPreset).toLowerCase()];
+  if (!preset) {
+    return {
+      error: `'qualityPreset' must be one of: ${Object.keys(QUALITY_PRESETS).join(", ")}`,
+    };
+  }
+
+  return {
+    images,
+    options: { layout, columns, spacing, background, ...preset },
+  };
+}
+
+// EX: POST /api/merge { images: [...], layout: "grid", columns: 2, ... }
+app.post("/api/merge", async (req, res) => {
+  const { error, images, options } = parseMergeBody(req.body);
+  if (error) {
+    return res.status(400).json({ error });
+  }
+
+  try {
+    const { buffer } = await mergeImages(images, options);
+    return res
+      .status(200)
+      .type("image/jpeg")
+      .attachment("slidesmerger-export.jpeg")
+      .send(buffer);
+  } catch (e) {
+    console.error("Merge failed:", e);
+    return res.status(502).json({ error: e.message });
+  }
+});
+
 if (isProduction) {
   app.use(express.static(path.join(__dirname, "public")));
   app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
   });
 }
-
-let images = [
-  "images/1.jpeg",
-  "images/2.jpeg",
-  "images/3.jpeg",
-  "images/4.jpeg",
-  "images/5.jpeg",
-  "images/6.jpeg",
-  "images/7.jpeg",
-  "images/8.jpeg",
-  "images/9.jpeg",
-  "images/9.jpeg",
-];
-images = Array.from({ length: 10 }, () => images).flat();
-
-mergeImages(
-  images.map((image) => path.join(__dirname, image)),
-  { layout: "grid", columns: 10 },
-)
-  .then(({ buffer }) =>
-    fs.writeFile(path.join(__dirname, "images/merged.jpeg"), buffer),
-  )
-  .catch((e) => console.error("Merge failed:", e));
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
