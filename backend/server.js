@@ -1,7 +1,12 @@
 import express from "express";
 import path from "node:path";
-import { extractTiktokImages, resolveTiktokUrl } from "./scrapper.js";
+import {
+  extractTiktokImages,
+  isTiktokUrl,
+  resolveTiktokUrl,
+} from "./scrapper.js";
 import { fileURLToPath } from "node:url";
+import { mergeImages, parseMergeBody } from "./image-builder.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 3001);
@@ -9,15 +14,7 @@ const NODE_ENV = process.env.NODE_ENV || "development";
 const isProduction = NODE_ENV === "production";
 
 const app = express();
-
-function isTiktokUrl(value) {
-  try {
-    const { hostname } = new URL(value);
-    return hostname === "tiktok.com" || hostname.endsWith(".tiktok.com");
-  } catch {
-    return false;
-  }
-}
+app.use(express.json());
 
 // EX: GET /api/images?url=https://www.tiktok.com/@user/photo/123
 app.get("/api/images", async (req, res) => {
@@ -48,6 +45,26 @@ app.get("/api/images", async (req, res) => {
   } catch (e) {
     const status = e.message.includes("timeout") ? 502 : 400;
     return res.status(status).json({ error: e.message });
+  }
+});
+
+// EX: POST /api/merge { images: [...], layout: "grid", columns: 2, ... }
+app.post("/api/merge", async (req, res) => {
+  const { error, images, options } = parseMergeBody(req.body);
+  if (error) {
+    return res.status(400).json({ error });
+  }
+
+  try {
+    const { buffer } = await mergeImages(images, options);
+    return res
+      .status(200)
+      .type("image/jpeg")
+      .attachment("slidesmerger-export.jpeg")
+      .send(buffer);
+  } catch (e) {
+    console.error("Merge failed:", e);
+    return res.status(502).json({ error: e.message });
   }
 });
 

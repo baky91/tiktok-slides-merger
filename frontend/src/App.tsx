@@ -1,28 +1,34 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { fetchTiktokImages } from './api'
+import { fetchTiktokImages, mergeTiktokImages } from './api'
 import { ControlsPanel } from './components/ControlsPanel'
 import { Header } from './components/Header'
 import { Hero } from './components/Hero'
 import { PreviewPanel } from './components/PreviewPanel'
 import { QuickSettings } from './components/QuickSettings'
 import { Toast } from './components/Toast'
-import { Format, Layout, Status } from './types'
+import { Format, Layout, Quality, Status } from './types'
 
 function App() {
   const [layout, setLayout] = useState<Layout>(Layout.Grid)
-  const [format, setFormat] = useState<Format>(Format.PNG)
+  const [format, setFormat] = useState<Format>(Format.JPEG)
+  const [quality, setQuality] = useState<Quality>(Quality.Standard)
   const [columns, setColumns] = useState(2)
   const [spacing, setSpacing] = useState(12)
   const [url, setUrl] = useState('')
   const [status, setStatus] = useState<Status>(Status.Idle)
   const [images, setImages] = useState<string[]>([])
   const [excludedImages, setExcludedImages] = useState<Set<string>>(new Set())
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [background, setBackground] = useState<string>('#ffffff')
   const [error, setError] = useState('')
   const [exporting, setExporting] = useState(false)
   const [toast, setToast] = useState(false)
   const quickSettingsRef = useRef<HTMLDivElement>(null)
 
-  const activeImages = useMemo(() => images.filter((image) => !excludedImages.has(image)), [images, excludedImages])
+  const activeImages = useMemo(
+    () => images.filter((image) => !excludedImages.has(image)),
+    [images, excludedImages]
+  )
   // A grid can have as many columns as there are selected images
   const maxColumns = Math.max(2, activeImages.length)
   const gridColumns = Math.min(columns, maxColumns)
@@ -37,7 +43,9 @@ function App() {
   }
 
   const toggleAllImages = () => {
-    setExcludedImages((current) => (current.size === 0 ? new Set(images) : new Set()))
+    setExcludedImages((current) =>
+      current.size === 0 ? new Set(images) : new Set()
+    )
   }
 
   useEffect(() => {
@@ -55,7 +63,10 @@ function App() {
     setStatus(Status.Loading)
     // On mobile the preview sits below the controls: bring it into view
     if (window.matchMedia('(max-width: 900px)').matches) {
-      quickSettingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      quickSettingsRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
     }
     try {
       const carousel = await fetchTiktokImages(url)
@@ -71,14 +82,25 @@ function App() {
 
   const download = () => {
     setExporting(true)
-    window.setTimeout(() => {
-      const blob = new Blob(['SlidesMerger preview export'], {
-        type: 'text/plain',
+    window.setTimeout(async () => {
+      const blob = await mergeTiktokImages({
+        layout: layout,
+        columns: columns,
+        spacing: spacing,
+        background: background,
+        qualityPreset: quality,
+        images: activeImages,
       })
+
+      const dateTimeStr = new Date()
+        .toISOString()
+        .replace(/[:.]/g, '-')
+        .slice(0, 19)
+
       const href = URL.createObjectURL(blob)
       const anchor = document.createElement('a')
       anchor.href = href
-      anchor.download = `slidesmerger-export.${format.toLowerCase()}.txt`
+      anchor.download = `slidesmerger-export-${dateTimeStr}.${format.toLowerCase()}`
       anchor.click()
       URL.revokeObjectURL(href)
       setExporting(false)
@@ -110,10 +132,12 @@ function App() {
             columns={gridColumns}
             maxColumns={maxColumns}
             format={format}
+            quality={quality}
             spacing={spacing}
             onLayoutChange={setLayout}
             onColumnsChange={setColumns}
             onFormatChange={setFormat}
+            onQualityChange={setQuality}
             onSpacingChange={setSpacing}
           />
 

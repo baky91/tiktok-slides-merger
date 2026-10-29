@@ -6,10 +6,18 @@ export const Layout = {
 export type Layout = (typeof Layout)[keyof typeof Layout]
 
 export const Format = {
-  PNG: 'PNG',
+  JPEG: 'JPEG',
+  // PNG: 'PNG',
   PDF: 'PDF',
 } as const
 export type Format = (typeof Format)[keyof typeof Format]
+
+export const Quality = {
+  Standard: 'Standard',
+  High: 'High',
+  // Max: 'max',
+} as const
+export type Quality = (typeof Quality)[keyof typeof Quality]
 
 export const Status = {
   Idle: 'idle',
