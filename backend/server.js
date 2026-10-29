@@ -1,7 +1,9 @@
 import express from "express";
+import fs from "node:fs/promises";
 import path from "node:path";
 import { extractTiktokImages, resolveTiktokUrl } from "./scrapper.js";
 import { fileURLToPath } from "node:url";
+import { mergeImages } from "./image-builder.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 3001);
@@ -57,6 +59,29 @@ if (isProduction) {
     res.sendFile(path.join(__dirname, "public", "index.html"));
   });
 }
+
+let images = [
+  "images/1.jpeg",
+  "images/2.jpeg",
+  "images/3.jpeg",
+  "images/4.jpeg",
+  "images/5.jpeg",
+  "images/6.jpeg",
+  "images/7.jpeg",
+  "images/8.jpeg",
+  "images/9.jpeg",
+  "images/9.jpeg",
+];
+images = Array.from({ length: 10 }, () => images).flat();
+
+mergeImages(
+  images.map((image) => path.join(__dirname, image)),
+  { layout: "grid", columns: 10 },
+)
+  .then(({ buffer }) =>
+    fs.writeFile(path.join(__dirname, "images/merged.jpeg"), buffer),
+  )
+  .catch((e) => console.error("Merge failed:", e));
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
