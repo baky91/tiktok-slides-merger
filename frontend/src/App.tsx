@@ -134,11 +134,13 @@ function App() {
             format={format}
             quality={quality}
             spacing={spacing}
+            background={background}
             onLayoutChange={setLayout}
             onColumnsChange={setColumns}
             onFormatChange={setFormat}
             onQualityChange={setQuality}
             onSpacingChange={setSpacing}
+            onBackgroundChange={setBackground}
           />
 
           <QuickSettings

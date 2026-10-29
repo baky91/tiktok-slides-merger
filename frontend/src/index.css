@@ -530,16 +530,9 @@ main {
   border: 1px solid #d8d4dc;
 }
 
-.color-options i:nth-child(2) {
-  background: #f0ebe3;
-}
-
-.color-options i:nth-child(3) {
-  background: #242129;
-}
-
 .color-options i.selected {
-  box-shadow: 0 0 0 2px #6848e5;
+  /* box-shadow: 0 0 0 2px #6848e5; */
+  border-color: #6848e5;
 }
 
 .preview-panel {

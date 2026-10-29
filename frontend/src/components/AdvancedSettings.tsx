@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { Button } from './Button'
 import { Icon } from './Icon'
-import { Quality } from '../types'
+import { Background, Quality } from '../types'
 
 type AdvancedSettingsProps = {
   spacing: number
   onSpacingChange: (spacing: number) => void
   quality: Quality
   onQualityChange: (quality: Quality) => void
+  background: string
+  onBackgroundChange: (background: string) => void
 }
 
 export function AdvancedSettings({
@@ -15,6 +17,8 @@ export function AdvancedSettings({
   onSpacingChange,
   quality,
   onQualityChange,
+  background,
+  onBackgroundChange,
 }: AdvancedSettingsProps) {
   const [open, setOpen] = useState(false)
 
@@ -48,9 +52,14 @@ export function AdvancedSettings({
           <div className="background-setting">
             <span>Document background</span>
             <div className="color-options">
-              <i className="selected" />
-              <i />
-              <i />
+              {Object.values(Background).map((item) => (
+                <i
+                  key={item}
+                  className={background === item ? 'selected' : ''}
+                  style={{ background: item }}
+                  onClick={() => onBackgroundChange(item)}
+                ></i>
+              ))}
             </div>
           </div>
 

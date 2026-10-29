@@ -12,11 +12,13 @@ type ControlsPanelProps = {
   format: Format
   quality: Quality
   spacing: number
+  background: string
   onLayoutChange: (layout: Layout) => void
   onColumnsChange: (columns: number) => void
   onFormatChange: (format: Format) => void
   onQualityChange: (quality: Quality) => void
   onSpacingChange: (spacing: number) => void
+  onBackgroundChange: (background: string) => void
 }
 
 export function ControlsPanel({
@@ -27,11 +29,13 @@ export function ControlsPanel({
   format,
   quality,
   spacing,
+  background,
   onLayoutChange,
   onColumnsChange,
   onFormatChange,
   onQualityChange,
   onSpacingChange,
+  onBackgroundChange,
 }: ControlsPanelProps) {
   return (
     <aside className="controls-panel">
@@ -104,6 +108,8 @@ export function ControlsPanel({
         onSpacingChange={onSpacingChange}
         quality={quality}
         onQualityChange={onQualityChange}
+        background={background}
+        onBackgroundChange={onBackgroundChange}
       />
     </aside>
   )

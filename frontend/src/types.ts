@@ -26,3 +26,9 @@ export const Status = {
   Error: 'error',
 } as const
 export type Status = (typeof Status)[keyof typeof Status]
+
+export const Background = {
+  white: '#ffffff',
+  black: '#000000',
+} as const
+export type Background = (typeof Background)[keyof typeof Background]
