@@ -8,6 +8,64 @@ export const JPEG_MAX_SIDE = 65500;
 const ALLOWED_HOST = /(^|\.)tiktokcdn(-[a-z]+)?\.com$/;
 const DOWNLOAD_TIMEOUT = 15_000;
 const MAX_DOWNLOAD_SIZE = 20_000_000;
+export const QUALITY_PRESETS = {
+  standard: { maxPixels: 8_000_000, quality: 80 },
+  high: { maxPixels: 24_000_000, quality: 90 },
+  max: { maxPixels: 60_000_000, quality: 95 },
+};
+export const LAYOUTS = ["vertical", "horizontal", "grid"];
+export const MAX_IMAGES = 50;
+export const MAX_SPACING = 100;
+
+// Validates the merge request body, filling in defaults for missing options
+export function parseMergeBody(body) {
+  const {
+    images,
+    layout = "grid",
+    columns = 2,
+    spacing = 0,
+    background = "#ffffff",
+    qualityPreset = "high",
+  } = body ?? {};
+
+  if (
+    !Array.isArray(images) ||
+    images.length === 0 ||
+    images.length > MAX_IMAGES ||
+    !images.every(
+      (image) => typeof image === "string" && image.startsWith("https://"),
+    )
+  ) {
+    return {
+      error: `'images' must be a list of 1 to ${MAX_IMAGES} https URLs`,
+    };
+  }
+  if (!LAYOUTS.includes(layout)) {
+    return { error: `'layout' must be one of: ${LAYOUTS.join(", ")}` };
+  }
+  if (!Number.isInteger(columns) || columns < 1) {
+    return { error: "'columns' must be a positive integer" };
+  }
+  if (!Number.isInteger(spacing) || spacing < 0 || spacing > MAX_SPACING) {
+    return {
+      error: `'spacing' must be an integer between 0 and ${MAX_SPACING}`,
+    };
+  }
+  if (typeof background !== "string" || !/^#[0-9a-f]{6}$/i.test(background)) {
+    return { error: "'background' must be a hex color like #ffffff" };
+  }
+  const preset = QUALITY_PRESETS[String(qualityPreset).toLowerCase()];
+  if (!preset) {
+    return {
+      error: `'qualityPreset' must be one of: ${Object.keys(QUALITY_PRESETS).join(", ")}`,
+    };
+  }
+
+  return {
+    images,
+    options: { layout, columns, spacing, background, ...preset },
+  };
+}
 
 // Downloads URLs into buffers; file paths and buffers are returned as is
 async function loadImage(image) {
@@ -31,15 +89,6 @@ async function loadImage(image) {
     throw new Error(`Image too large: ${hostname}`);
   return buffer;
 }
-
-export const QUALITY_PRESETS = {
-  standard: { maxPixels: 8_000_000, quality: 80 },
-  high: { maxPixels: 24_000_000, quality: 90 },
-  max: { maxPixels: 60_000_000, quality: 95 },
-};
-export const LAYOUTS = ["vertical", "horizontal", "grid"];
-export const MAX_IMAGES = 50;
-export const MAX_SPACING = 100;
 
 /**
  * Merges a list of images into a single JPEG.

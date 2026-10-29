@@ -3,6 +3,15 @@ import { chromium } from "playwright";
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
+export function isTiktokUrl(value) {
+  try {
+    const { hostname } = new URL(value);
+    return hostname === "tiktok.com" || hostname.endsWith(".tiktok.com");
+  } catch {
+    return false;
+  }
+}
+
 // Converts a short link (vm.tiktok.com, vt.tiktok.com) into a www.tiktok.com link
 // by manually following the HTTP redirects
 export async function resolveTiktokUrl(tiktokUrl) {
