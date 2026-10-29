@@ -6,11 +6,12 @@ import { Hero } from './components/Hero'
 import { PreviewPanel } from './components/PreviewPanel'
 import { QuickSettings } from './components/QuickSettings'
 import { Toast } from './components/Toast'
-import { Format, Layout, Status } from './types'
+import { Format, Layout, Quality, Status } from './types'
 
 function App() {
   const [layout, setLayout] = useState<Layout>(Layout.Grid)
-  const [format, setFormat] = useState<Format>(Format.PNG)
+  const [format, setFormat] = useState<Format>(Format.JPEG)
+  const [quality, setQuality] = useState<Quality>(Quality.Standard)
   const [columns, setColumns] = useState(2)
   const [spacing, setSpacing] = useState(12)
   const [url, setUrl] = useState('')
@@ -22,7 +23,10 @@ function App() {
   const [toast, setToast] = useState(false)
   const quickSettingsRef = useRef<HTMLDivElement>(null)
 
-  const activeImages = useMemo(() => images.filter((image) => !excludedImages.has(image)), [images, excludedImages])
+  const activeImages = useMemo(
+    () => images.filter((image) => !excludedImages.has(image)),
+    [images, excludedImages]
+  )
   // A grid can have as many columns as there are selected images
   const maxColumns = Math.max(2, activeImages.length)
   const gridColumns = Math.min(columns, maxColumns)
@@ -37,7 +41,9 @@ function App() {
   }
 
   const toggleAllImages = () => {
-    setExcludedImages((current) => (current.size === 0 ? new Set(images) : new Set()))
+    setExcludedImages((current) =>
+      current.size === 0 ? new Set(images) : new Set()
+    )
   }
 
   useEffect(() => {
@@ -55,7 +61,10 @@ function App() {
     setStatus(Status.Loading)
     // On mobile the preview sits below the controls: bring it into view
     if (window.matchMedia('(max-width: 900px)').matches) {
-      quickSettingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      quickSettingsRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
     }
     try {
       const carousel = await fetchTiktokImages(url)
@@ -110,10 +119,12 @@ function App() {
             columns={gridColumns}
             maxColumns={maxColumns}
             format={format}
+            quality={quality}
             spacing={spacing}
             onLayoutChange={setLayout}
             onColumnsChange={setColumns}
             onFormatChange={setFormat}
+            onQualityChange={setQuality}
             onSpacingChange={setSpacing}
           />
 
