@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# Automatically navigate to the directory containing the script, 
+# regardless of where it is run from
+cd "$(dirname "$0")"
+
+# Check Playwright browser installation
+PLAYWRIGHT_CACHE="$HOME/.cache/ms-playwright"
+if [ ! -d "$PLAYWRIGHT_CACHE" ] || [ -z "$(ls -A "$PLAYWRIGHT_CACHE" 2>/dev/null)" ]; then
+    echo "⚠️ Playwright browsers do not appear to be installed."
+    read -p "Would you like to install them now (npm run install-browser)? (y/n): " choice
+    case "$choice" in
+        [yY] | [yY][eE][sS] )
+            cd backend
+            echo "Starting installation..."
+            npm run install-browser
+            if [ $? -ne 0 ]; then
+                echo "Error during Playwright browser installation. Aborting script."
+                exit 1
+            fi
+            cd ..
+            ;;
+        * )
+            echo "Installation declined. Aborting script."
+            exit 1
+            ;;
+    esac
+fi
+
+# Build React App
+cd frontend
+npm run build
+
+# Check if the dist directory was created
+if [ ! -d "dist" ]; then
+    echo "Error during build"
+    exit 2
+fi
+
+# Move dist content into backend/public
+cd ..
+public_folder="backend/public"
+if [ ! -d $public_folder ]; then
+    echo "Directory $public_folder does not exist"
+    mkdir -pv $public_folder
+fi
+
+cp -R frontend/dist/. $public_folder
+
+ls -l $public_folder
+
+# Launch server
+export NODE_ENV="production"
+
+cd backend
+npm start
