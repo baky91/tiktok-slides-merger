@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
-@import 'tailwindcss';
 
-@theme {
+:root {
   --color-ink: #16151a;
   --color-muted: #706d78;
   --color-line: #e9e7ed;
@@ -12,25 +11,102 @@
   --font-display: 'Manrope', sans-serif;
 }
 
-@layer base {
-  body {
-    background: #faf9fc;
-    color: var(--color-ink);
-    font-family: var(--font-sans);
-  }
+/* Minimal reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0 solid;
+}
 
-  button,
-  input {
-    outline: none;
-  }
+html {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+  -webkit-tap-highlight-color: transparent;
+}
 
-  button {
-    cursor: pointer;
-  }
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
 
-  button:disabled {
-    cursor: not-allowed;
-  }
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+small {
+  font-size: 80%;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+::placeholder {
+  opacity: 1;
+  color: color-mix(in oklab, currentcolor 50%, transparent);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  background: #faf9fc;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+button,
+input {
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
 }
 
 * {
