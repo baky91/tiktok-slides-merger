@@ -2,24 +2,17 @@ import { useState } from 'react'
 import { Button } from '../Button'
 import { Icon } from '../Icon'
 import { Background, Quality } from '../../types'
+import { useSettings } from '../../contexts/SettingsProvider'
 
-type AdvancedSettingsProps = {
-  spacing: number
-  onSpacingChange: (spacing: number) => void
-  quality: Quality
-  onQualityChange: (quality: Quality) => void
-  background: string
-  onBackgroundChange: (background: string) => void
-}
-
-export function AdvancedSettings({
-  spacing,
-  onSpacingChange,
-  quality,
-  onQualityChange,
-  background,
-  onBackgroundChange,
-}: AdvancedSettingsProps) {
+export function AdvancedSettings() {
+  const {
+    spacing,
+    setSpacing,
+    background,
+    setBackground,
+    quality,
+    setQuality,
+  } = useSettings()
   const [open, setOpen] = useState(false)
 
   return (
@@ -42,7 +35,7 @@ export function AdvancedSettings({
               min="0"
               max="28"
               value={spacing}
-              onChange={(event) => onSpacingChange(Number(event.target.value))}
+              onChange={(event) => setSpacing(Number(event.target.value))}
             />
             <div className="range-labels">
               <span>None</span>
@@ -57,7 +50,7 @@ export function AdvancedSettings({
                   key={item}
                   className={background === item ? 'selected' : ''}
                   style={{ background: item }}
-                  onClick={() => onBackgroundChange(item)}
+                  onClick={() => setBackground(item)}
                 ></i>
               ))}
             </div>
@@ -68,7 +61,7 @@ export function AdvancedSettings({
               <Button
                 key={item}
                 className={quality === item ? 'active' : ''}
-                onClick={() => onQualityChange(item)}
+                onClick={() => setQuality(item)}
               >
                 {item}
               </Button>

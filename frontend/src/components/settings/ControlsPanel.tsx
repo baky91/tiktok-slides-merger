@@ -1,42 +1,18 @@
-import { Format, Layout, Quality } from '../../types'
+import { Format, Layout } from '../../types'
 import { AdvancedSettings } from './AdvancedSettings'
 import { Button } from '../Button'
 import { ColumnsStepper } from './ColumnsStepper'
 import { Icon } from '../Icon'
+import { useSettings } from '../../contexts/SettingsProvider'
 
 type ControlsPanelProps = {
   imageCount: number
-  layout: Layout
-  columns: number
   maxColumns: number
-  format: Format
-  quality: Quality
-  spacing: number
-  background: string
-  onLayoutChange: (layout: Layout) => void
-  onColumnsChange: (columns: number) => void
-  onFormatChange: (format: Format) => void
-  onQualityChange: (quality: Quality) => void
-  onSpacingChange: (spacing: number) => void
-  onBackgroundChange: (background: string) => void
 }
 
-export function ControlsPanel({
-  imageCount,
-  layout,
-  columns,
-  maxColumns,
-  format,
-  quality,
-  spacing,
-  background,
-  onLayoutChange,
-  onColumnsChange,
-  onFormatChange,
-  onQualityChange,
-  onSpacingChange,
-  onBackgroundChange,
-}: ControlsPanelProps) {
+export function ControlsPanel({ imageCount, maxColumns }: ControlsPanelProps) {
+  const { layout, setLayout, format, setFormat } = useSettings()
+
   return (
     <aside className="controls-panel">
       <div className="panel-heading">
@@ -65,7 +41,7 @@ export function ControlsPanel({
             <Button
               key={value}
               className={`layout-card ${layout === value ? 'selected' : ''}`}
-              onClick={() => onLayoutChange(value)}
+              onClick={() => setLayout(value)}
             >
               <Icon name={value} size={21} />
               <span>{label}</span>
@@ -79,11 +55,7 @@ export function ControlsPanel({
               <div className="sub-label">Grid columns</div>
               <div className="sub-copy">Set the number of columns</div>
             </div>
-            <ColumnsStepper
-              columns={columns}
-              max={maxColumns}
-              onChange={onColumnsChange}
-            />
+            <ColumnsStepper max={maxColumns} />
           </div>
         )}
       </div>
@@ -95,7 +67,7 @@ export function ControlsPanel({
             <Button
               key={item}
               className={format === item ? 'active' : ''}
-              onClick={() => onFormatChange(item)}
+              onClick={() => setFormat(item)}
             >
               {item}
             </Button>
@@ -103,14 +75,7 @@ export function ControlsPanel({
         </div>
       </div>
 
-      <AdvancedSettings
-        spacing={spacing}
-        onSpacingChange={onSpacingChange}
-        quality={quality}
-        onQualityChange={onQualityChange}
-        background={background}
-        onBackgroundChange={onBackgroundChange}
-      />
+      <AdvancedSettings />
     </aside>
   )
 }

@@ -2,14 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Layout } from '../../types'
 import { Button } from '../Button'
 import { Icon } from '../Icon'
+import { useSettings } from '../../contexts/SettingsProvider'
 
 type PreviewCanvasProps = {
   images: string[]
   // The carousel has slides, even if none of them is currently selected
   hasSlides: boolean
-  layout: Layout
-  columns: number
-  spacing: number
   loading: boolean
 }
 
@@ -21,7 +19,8 @@ const MAX_SCALE = 4
 const ZOOM_STEP = 1.25
 const FIT_PADDING = 48
 
-const clampScale = (scale: number) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale))
+const clampScale = (scale: number) =>
+  Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale))
 
 // Zooms around `point` (in stage coordinates) so that it stays fixed on screen
 function zoomAt(view: View, point: Point, nextScale: number): View {
@@ -43,7 +42,13 @@ function gesture(points: Point[]) {
   }
 }
 
-export function PreviewCanvas({ images, hasSlides, layout, columns, spacing, loading }: PreviewCanvasProps) {
+export function PreviewCanvas({
+  images,
+  hasSlides,
+  loading,
+}: PreviewCanvasProps) {
+  const { layout, columns, spacing } = useSettings()
+
   const [view, setView] = useState<View>({ x: 0, y: 0, scale: 1 })
   const stageRef = useRef<HTMLDivElement>(null)
   const paperRef = useRef<HTMLDivElement>(null)
@@ -52,9 +57,11 @@ export function PreviewCanvas({ images, hasSlides, layout, columns, spacing, loa
   const interacted = useRef(false)
 
   const columnCount =
-    layout === Layout.Vertical ? 1
-    : layout === Layout.Horizontal ? images.length
-    : Math.min(columns, images.length)
+    layout === Layout.Vertical
+      ? 1
+      : layout === Layout.Horizontal
+        ? images.length
+        : Math.min(columns, images.length)
 
   const fit = useCallback(() => {
     const stage = stageRef.current
@@ -103,8 +110,13 @@ export function PreviewCanvas({ images, hasSlides, layout, columns, spacing, loa
       event.preventDefault()
       interacted.current = true
       const rect = stage.getBoundingClientRect()
-      const point = { x: event.clientX - rect.left, y: event.clientY - rect.top }
-      setView((current) => zoomAt(current, point, current.scale * Math.exp(-event.deltaY * 0.002)))
+      const point = {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      }
+      setView((current) =>
+        zoomAt(current, point, current.scale * Math.exp(-event.deltaY * 0.002))
+      )
     }
     // React registers wheel listeners as passive, which forbids preventDefault
     stage.addEventListener('wheel', onWheel, { passive: false })
@@ -117,7 +129,8 @@ export function PreviewCanvas({ images, hasSlides, layout, columns, spacing, loa
   }
 
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0 || (event.target as Element).closest('button')) return
+    if (event.button !== 0 || (event.target as Element).closest('button'))
+      return
     event.currentTarget.setPointerCapture(event.pointerId)
     pointers.current.set(event.pointerId, toStagePoint(event))
     interacted.current = true
@@ -132,7 +145,11 @@ export function PreviewCanvas({ images, hasSlides, layout, columns, spacing, loa
     setView((current) => {
       const zoomed =
         pointers.current.size > 1 && previous.distance > 0
-          ? zoomAt(current, previous.center, current.scale * (next.distance / previous.distance))
+          ? zoomAt(
+              current,
+              previous.center,
+              current.scale * (next.distance / previous.distance)
+            )
           : current
       return {
         ...zoomed,
@@ -171,21 +188,49 @@ export function PreviewCanvas({ images, hasSlides, layout, columns, spacing, loa
       onPointerCancel={onPointerUp}
     >
       {loading ? (
-        <div className="loading-state"><span className="spinner dark" /><strong>Fetching images…</strong><small>Reading your TikTok carousel</small></div>
+        <div className="loading-state">
+          <span className="spinner dark" />
+          <strong>Fetching images…</strong>
+          <small>Reading your TikTok carousel</small>
+        </div>
       ) : images.length === 0 ? (
         hasSlides ? (
-          <div className="loading-state"><Icon name="image" size={22} /><strong>No slides selected</strong><small>Select at least one slide to see the preview</small></div>
+          <div className="loading-state">
+            <Icon name="image" size={22} />
+            <strong>No slides selected</strong>
+            <small>Select at least one slide to see the preview</small>
+          </div>
         ) : (
-          <div className="loading-state"><Icon name="image" size={22} /><strong>No images yet</strong><small>Paste a TikTok carousel link to see the preview</small></div>
+          <div className="loading-state">
+            <Icon name="image" size={22} />
+            <strong>No images yet</strong>
+            <small>Paste a TikTok carousel link to see the preview</small>
+          </div>
         )
       ) : (
-        <div className="preview-viewport" style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})` }}>
+        <div
+          className="preview-viewport"
+          style={{
+            transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})`,
+          }}
+        >
           <div className="paper" ref={paperRef}>
-            <div className="canvas-images" style={{ gridTemplateColumns: `repeat(${columnCount}, var(--cell-width))`, gap: `${Math.max(3, spacing / 2)}px` }}>
+            <div
+              className="canvas-images"
+              style={{
+                gridTemplateColumns: `repeat(${columnCount}, var(--cell-width))`,
+                gap: `${Math.max(3, spacing / 2)}px`,
+              }}
+            >
               {images.map((image, index) => (
                 <div className="photo-card" key={image}>
                   {/* TikTok's CDN rejects requests carrying a foreign Referer */}
-                  <img src={image} alt={`Carousel image ${index + 1}`} referrerPolicy="no-referrer" draggable={false} />
+                  <img
+                    src={image}
+                    alt={`Carousel image ${index + 1}`}
+                    referrerPolicy="no-referrer"
+                    draggable={false}
+                  />
                 </div>
               ))}
             </div>
@@ -199,9 +244,19 @@ export function PreviewCanvas({ images, hasSlides, layout, columns, spacing, loa
             <span className="hint-touch">Drag to move · Pinch to zoom</span>
           </div>
           <div className="zoom-control">
-            <Button aria-label="Zoom out" onClick={() => zoomBy(1 / ZOOM_STEP)}><Icon name="minus" size={14} /></Button>
-            <Button className="zoom-value" title="Fit to screen" onClick={resetView}>{Math.round(view.scale * 100)}%</Button>
-            <Button aria-label="Zoom in" onClick={() => zoomBy(ZOOM_STEP)}><Icon name="plus" size={14} /></Button>
+            <Button aria-label="Zoom out" onClick={() => zoomBy(1 / ZOOM_STEP)}>
+              <Icon name="minus" size={14} />
+            </Button>
+            <Button
+              className="zoom-value"
+              title="Fit to screen"
+              onClick={resetView}
+            >
+              {Math.round(view.scale * 100)}%
+            </Button>
+            <Button aria-label="Zoom in" onClick={() => zoomBy(ZOOM_STEP)}>
+              <Icon name="plus" size={14} />
+            </Button>
           </div>
         </>
       )}
