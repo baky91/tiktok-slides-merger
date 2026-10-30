@@ -527,7 +527,6 @@ main {
   width: 100%;
   height: 4px;
   margin-top: 17px;
-  appearance: none;
   border-radius: 10px;
   background: linear-gradient(to right, #6d4aff 0 43%, #e3e0e7 43%);
 }
@@ -579,7 +578,7 @@ main {
   min-width: 0;
 }
 
-.background-setting {
+.line-color-setting {
   padding-top: 12px;
   display: flex;
   justify-content: space-between;
@@ -691,8 +690,8 @@ main {
 .paper {
   --cell-width: 160px;
   width: max-content;
-  padding: 9px;
   border-radius: 3px;
+  overflow: hidden;
   background: #fff;
   box-shadow: 0 19px 46px rgba(29, 24, 39, .16), 0 2px 5px rgba(29, 24, 39, .09);
 }

@@ -47,7 +47,7 @@ export function PreviewCanvas({
   hasSlides,
   loading,
 }: PreviewCanvasProps) {
-  const { layout, columns, spacing } = useSettings()
+  const { layout, columns, spacing, lineColor } = useSettings()
 
   const [view, setView] = useState<View>({ x: 0, y: 0, scale: 1 })
   const stageRef = useRef<HTMLDivElement>(null)
@@ -219,7 +219,9 @@ export function PreviewCanvas({
               className="canvas-images"
               style={{
                 gridTemplateColumns: `repeat(${columnCount}, var(--cell-width))`,
-                gap: `${Math.max(3, spacing / 2)}px`,
+                // Same rule as the export: a percentage of the image width
+                gap: `calc(var(--cell-width) * ${spacing / 100})`,
+                background: lineColor,
               }}
             >
               {images.map((image, index) => (

@@ -41,8 +41,8 @@ export const Status = {
 } as const
 export type Status = (typeof Status)[keyof typeof Status]
 
-export const Background = {
+export const LineColor = {
   white: '#ffffff',
   black: '#000000',
 } as const
-export type Background = (typeof Background)[keyof typeof Background]
+export type LineColor = (typeof LineColor)[keyof typeof LineColor]

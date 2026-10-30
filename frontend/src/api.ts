@@ -1,4 +1,4 @@
-import type { Layout, Quality } from './types'
+import type { Layout, LineColor, Quality } from './types'
 
 export type TiktokCarousel = {
   url: string
@@ -12,7 +12,7 @@ export type ExportRequestBody = {
   layout: Layout
   columns: number
   spacing: number
-  background: string
+  lineColor: LineColor
   qualityPreset: Quality
   images: string[]
 }
