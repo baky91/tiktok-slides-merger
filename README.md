@@ -195,6 +195,7 @@ Invalid values return `400` with `{ "error": "…" }`.
   change without notice.
 - **Image links expire.** TikTok signs them with an expiration date, so a list of
   images can stop working after a while. Fetch the carousel again to get new links.
+- **Public carousels only.** Private posts, visible only by friends or deleted, cannot be viewed.
 - **No rate limiting.** The scraping and merging routes are not protected yet, and
   each scrape starts a browser. Put the app behind a limiter before exposing it publicly.
 
