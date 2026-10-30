@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { fetchTiktokImages, mergeTiktokImages } from './api'
-import { ControlsPanel } from './components/ControlsPanel'
+import { ControlsPanel } from './components/settings/ControlsPanel'
 import { Header } from './components/Header'
 import { Hero } from './components/Hero'
-import { PreviewPanel } from './components/PreviewPanel'
-import { QuickSettings } from './components/QuickSettings'
+import { QuickSettings } from './components/settings/QuickSettings'
 import { Toast } from './components/Toast'
 import { Format, Layout, Quality, Status } from './types'
+import { PreviewPanel } from './components/preview/PreviewPanel'
 
 function App() {
   const [layout, setLayout] = useState<Layout>(Layout.Grid)

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Layout } from '../types'
-import { Button } from './Button'
-import { Icon } from './Icon'
+import { Layout } from '../../types'
+import { Button } from '../Button'
+import { Icon } from '../Icon'
 
 type PreviewCanvasProps = {
   images: string[]

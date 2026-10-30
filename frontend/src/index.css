@@ -76,12 +76,6 @@
   color: white;
 }
 
-.top-actions {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-}
-
 .text-link {
   font-size: 13px;
   color: #5f5b67;

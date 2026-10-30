@@ -1,3 +1,17 @@
+export type IconName =
+  | 'arrow'
+  | 'chevron'
+  | 'close'
+  | 'download'
+  | 'grid'
+  | 'horizontal'
+  | 'image'
+  | 'link'
+  | 'minus'
+  | 'plus'
+  | 'spark'
+  | 'vertical'
+
 export const Layout = {
   Vertical: 'vertical',
   Horizontal: 'horizontal',

@@ -1,5 +1,5 @@
-import { type Format, Layout, Status } from '../types'
-import { ExportBar } from './ExportBar'
+import { type Format, Layout, Status } from '../../types'
+import { ExportBar } from '../ExportBar'
 import { ImagePicker } from './ImagePicker'
 import { PreviewCanvas } from './PreviewCanvas'
 

@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Button } from './Button'
-import { Icon } from './Icon'
-import { Background, Quality } from '../types'
+import { Button } from '../Button'
+import { Icon } from '../Icon'
+import { Background, Quality } from '../../types'
 
 type AdvancedSettingsProps = {
   spacing: number

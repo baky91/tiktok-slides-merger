@@ -1,8 +1,8 @@
-import { Format, Layout, Quality } from '../types'
+import { Format, Layout, Quality } from '../../types'
 import { AdvancedSettings } from './AdvancedSettings'
-import { Button } from './Button'
+import { Button } from '../Button'
 import { ColumnsStepper } from './ColumnsStepper'
-import { Icon } from './Icon'
+import { Icon } from '../Icon'
 
 type ControlsPanelProps = {
   imageCount: number

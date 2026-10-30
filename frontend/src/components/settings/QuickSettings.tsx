@@ -1,7 +1,7 @@
-import { Format, Layout } from '../types'
-import { Button } from './Button'
+import { Format, Layout } from '../../types'
+import { Button } from '../Button'
 import { ColumnsStepper } from './ColumnsStepper'
-import { Icon } from './Icon'
+import { Icon } from '../Icon'
 
 type QuickSettingsProps = {
   ref: React.Ref<HTMLDivElement>
