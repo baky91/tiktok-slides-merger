@@ -1,25 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { fetchTiktokImages, mergeTiktokImages } from './api'
-import { ControlsPanel } from './components/ControlsPanel'
+import { ControlsPanel } from './components/settings/ControlsPanel'
 import { Header } from './components/Header'
 import { Hero } from './components/Hero'
-import { PreviewPanel } from './components/PreviewPanel'
-import { QuickSettings } from './components/QuickSettings'
+import { QuickSettings } from './components/settings/QuickSettings'
 import { Toast } from './components/Toast'
-import { Format, Layout, Quality, Status } from './types'
+import { Status } from './types'
+import { PreviewPanel } from './components/preview/PreviewPanel'
+import { useSettings } from './contexts/SettingsProvider'
 
 function App() {
-  const [layout, setLayout] = useState<Layout>(Layout.Grid)
-  const [format, setFormat] = useState<Format>(Format.JPEG)
-  const [quality, setQuality] = useState<Quality>(Quality.Standard)
-  const [columns, setColumns] = useState(2)
-  const [spacing, setSpacing] = useState(12)
+  const { layout, format, quality, columns, spacing, lineColor } = useSettings()
+
   const [url, setUrl] = useState('')
   const [status, setStatus] = useState<Status>(Status.Idle)
   const [images, setImages] = useState<string[]>([])
   const [excludedImages, setExcludedImages] = useState<Set<string>>(new Set())
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [background, setBackground] = useState<string>('#ffffff')
   const [error, setError] = useState('')
   const [exporting, setExporting] = useState(false)
   const [toast, setToast] = useState(false)
@@ -31,7 +27,7 @@ function App() {
   )
   // A grid can have as many columns as there are selected images
   const maxColumns = Math.max(2, activeImages.length)
-  const gridColumns = Math.min(columns, maxColumns)
+  // const gridColumns = Math.min(columns, maxColumns)
 
   const toggleImage = (image: string) => {
     setExcludedImages((current) => {
@@ -87,7 +83,7 @@ function App() {
         layout: layout,
         columns: columns,
         spacing: spacing,
-        background: background,
+        lineColor: lineColor,
         qualityPreset: quality,
         images: activeImages,
       })
@@ -128,39 +124,14 @@ function App() {
         <section className="workspace">
           <ControlsPanel
             imageCount={activeImages.length}
-            layout={layout}
-            columns={gridColumns}
             maxColumns={maxColumns}
-            format={format}
-            quality={quality}
-            spacing={spacing}
-            background={background}
-            onLayoutChange={setLayout}
-            onColumnsChange={setColumns}
-            onFormatChange={setFormat}
-            onQualityChange={setQuality}
-            onSpacingChange={setSpacing}
-            onBackgroundChange={setBackground}
           />
 
-          <QuickSettings
-            ref={quickSettingsRef}
-            layout={layout}
-            columns={gridColumns}
-            maxColumns={maxColumns}
-            format={format}
-            onLayoutChange={setLayout}
-            onColumnsChange={setColumns}
-            onFormatChange={setFormat}
-          />
+          <QuickSettings ref={quickSettingsRef} maxColumns={maxColumns} />
 
           <PreviewPanel
             images={images}
             activeImages={activeImages}
-            layout={layout}
-            columns={gridColumns}
-            spacing={spacing}
-            format={format}
             status={status}
             exporting={exporting}
             onToggleImage={toggleImage}

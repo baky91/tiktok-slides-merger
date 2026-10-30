@@ -15,7 +15,8 @@ export const QUALITY_PRESETS = {
 };
 export const LAYOUTS = ["vertical", "horizontal", "grid"];
 export const MAX_IMAGES = 50;
-export const MAX_SPACING = 100;
+// Gap between images, as a percentage of the image width
+export const MAX_SPACING = 20;
 
 // Validates the merge request body, filling in defaults for missing options
 export function parseMergeBody(body) {
@@ -24,7 +25,7 @@ export function parseMergeBody(body) {
     layout = "grid",
     columns = 2,
     spacing = 0,
-    background = "#ffffff",
+    lineColor = "#ffffff",
     qualityPreset = "high",
   } = body ?? {};
 
@@ -46,13 +47,13 @@ export function parseMergeBody(body) {
   if (!Number.isInteger(columns) || columns < 1) {
     return { error: "'columns' must be a positive integer" };
   }
-  if (!Number.isInteger(spacing) || spacing < 0 || spacing > MAX_SPACING) {
+  if (!Number.isFinite(spacing) || spacing < 0 || spacing > MAX_SPACING) {
     return {
-      error: `'spacing' must be an integer between 0 and ${MAX_SPACING}`,
+      error: `'spacing' must be a number between 0 and ${MAX_SPACING}`,
     };
   }
-  if (typeof background !== "string" || !/^#[0-9a-f]{6}$/i.test(background)) {
-    return { error: "'background' must be a hex color like #ffffff" };
+  if (typeof lineColor !== "string" || !/^#[0-9a-f]{6}$/i.test(lineColor)) {
+    return { error: "'lineColor' must be a hex color like #ffffff" };
   }
   const preset = QUALITY_PRESETS[String(qualityPreset).toLowerCase()];
   if (!preset) {
@@ -63,7 +64,7 @@ export function parseMergeBody(body) {
 
   return {
     images,
-    options: { layout, columns, spacing, background, ...preset },
+    options: { layout, columns, spacing, lineColor, ...preset },
   };
 }
 
@@ -101,8 +102,8 @@ async function loadImage(image) {
  * @param {object} [options]
  * @param {"vertical" | "horizontal" | "grid"} [options.layout]
  * @param {number} [options.columns] Maximum number of columns in grid layout
- * @param {number} [options.spacing] Gap between images, in px at full size
- * @param {string} [options.background] Color of the gaps and empty cells
+ * @param {number} [options.spacing] Gap between images, as a percentage of the image width
+ * @param {string} [options.lineColor] Color of the lines between images and of empty cells
  * @param {number} [options.maxSide] Maximum width/height of the output, in px
  * @param {number} [options.maxPixels] Maximum width × height of the output
  * @param {number} [options.quality] JPEG quality (1-100)
@@ -114,7 +115,7 @@ export async function mergeImages(
     layout = "grid",
     columns = 2,
     spacing = 0,
-    background = "#ffffff",
+    lineColor = "#ffffff",
     maxSide = JPEG_MAX_SIDE,
     maxPixels = Infinity,
     quality = 90,
@@ -145,7 +146,8 @@ export async function mergeImages(
 
   // Layout at full size, used to compute how much the output must shrink
   const fullCellWidth = Math.min(...sizes.map((size) => size.width));
-  const full = computeLayout(sizes, columnCount, fullCellWidth, spacing);
+  const fullGap = Math.round((fullCellWidth * spacing) / 100);
+  const full = computeLayout(sizes, columnCount, fullCellWidth, fullGap);
   const scale = Math.min(
     1,
     maxSide / full.width,
@@ -155,7 +157,7 @@ export async function mergeImages(
 
   // Flooring every dimension keeps the scaled output within the limits
   const cellWidth = Math.max(1, Math.floor(fullCellWidth * scale));
-  const gap = Math.floor(spacing * scale);
+  const gap = Math.floor(fullGap * scale);
   const { width, height, cells } = computeLayout(
     sizes,
     columnCount,
@@ -174,7 +176,7 @@ export async function mergeImages(
   );
 
   const buffer = await sharp({
-    create: { width, height, channels: 3, background },
+    create: { width, height, channels: 3, background: lineColor },
     limitInputPixels: false,
   })
     .composite(tiles)

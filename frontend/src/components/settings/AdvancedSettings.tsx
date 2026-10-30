@@ -1,25 +1,12 @@
 import { useState } from 'react'
-import { Button } from './Button'
-import { Icon } from './Icon'
-import { Background, Quality } from '../types'
+import { Button } from '../Button'
+import { Icon } from '../Icon'
+import { LineColor, Quality } from '../../types'
+import { useSettings } from '../../contexts/SettingsProvider'
 
-type AdvancedSettingsProps = {
-  spacing: number
-  onSpacingChange: (spacing: number) => void
-  quality: Quality
-  onQualityChange: (quality: Quality) => void
-  background: string
-  onBackgroundChange: (background: string) => void
-}
-
-export function AdvancedSettings({
-  spacing,
-  onSpacingChange,
-  quality,
-  onQualityChange,
-  background,
-  onBackgroundChange,
-}: AdvancedSettingsProps) {
+export function AdvancedSettings() {
+  const { spacing, setSpacing, lineColor, setLineColor, quality, setQuality } =
+    useSettings()
   const [open, setOpen] = useState(false)
 
   return (
@@ -33,31 +20,33 @@ export function AdvancedSettings({
           <div className="advanced-setting">
             <div className="label-row">
               <span className="control-label">Image spacing</span>
-              <span className="value">{spacing} px</span>
+              <span className="value">{spacing} %</span>
             </div>
             <input
               className="range"
               aria-label="Image spacing"
               type="range"
               min="0"
-              max="28"
+              max="10"
               value={spacing}
-              onChange={(event) => onSpacingChange(Number(event.target.value))}
+              onChange={(event) => setSpacing(Number(event.target.value))}
             />
             <div className="range-labels">
               <span>None</span>
               <span>Wide</span>
             </div>
           </div>
-          <div className="background-setting">
-            <span>Document background</span>
+          <div className="line-color-setting">
+            <span>Line color</span>
             <div className="color-options">
-              {Object.values(Background).map((item) => (
+              {Object.entries(LineColor).map(([name, item]) => (
                 <i
                   key={item}
-                  className={background === item ? 'selected' : ''}
+                  role="button"
+                  aria-label={`Line color ${name}`}
+                  className={lineColor === item ? 'selected' : ''}
                   style={{ background: item }}
-                  onClick={() => onBackgroundChange(item)}
+                  onClick={() => setLineColor(item)}
                 ></i>
               ))}
             </div>
@@ -68,7 +57,7 @@ export function AdvancedSettings({
               <Button
                 key={item}
                 className={quality === item ? 'active' : ''}
-                onClick={() => onQualityChange(item)}
+                onClick={() => setQuality(item)}
               >
                 {item}
               </Button>

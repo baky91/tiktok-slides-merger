@@ -1,16 +1,5 @@
-export type IconName =
-  | 'arrow'
-  | 'chevron'
-  | 'close'
-  | 'download'
-  | 'grid'
-  | 'horizontal'
-  | 'image'
-  | 'link'
-  | 'minus'
-  | 'plus'
-  | 'spark'
-  | 'vertical'
+import type { IconName } from "../types";
+
 
 export function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
   const paths: Record<IconName, React.ReactNode> = {

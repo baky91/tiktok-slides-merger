@@ -1,3 +1,17 @@
+export type IconName =
+  | 'arrow'
+  | 'chevron'
+  | 'close'
+  | 'download'
+  | 'grid'
+  | 'horizontal'
+  | 'image'
+  | 'link'
+  | 'minus'
+  | 'plus'
+  | 'spark'
+  | 'vertical'
+
 export const Layout = {
   Vertical: 'vertical',
   Horizontal: 'horizontal',
@@ -8,7 +22,7 @@ export type Layout = (typeof Layout)[keyof typeof Layout]
 export const Format = {
   JPEG: 'JPEG',
   // PNG: 'PNG',
-  PDF: 'PDF',
+  // PDF: 'PDF',
 } as const
 export type Format = (typeof Format)[keyof typeof Format]
 
@@ -27,8 +41,8 @@ export const Status = {
 } as const
 export type Status = (typeof Status)[keyof typeof Status]
 
-export const Background = {
+export const LineColor = {
   white: '#ffffff',
   black: '#000000',
 } as const
-export type Background = (typeof Background)[keyof typeof Background]
+export type LineColor = (typeof LineColor)[keyof typeof LineColor]
