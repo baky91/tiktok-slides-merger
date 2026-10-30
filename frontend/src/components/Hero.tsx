@@ -33,13 +33,20 @@ export function Hero({
         Paste a TikTok carousel link, customize the layout, and export
         <br className="desktop-break" /> all images as JPEG or PDF.
       </div>
-      <div className={`url-wrap ${status === Status.Error ? 'has-error' : ''}`}>
+      <form
+        className={`url-wrap ${status === Status.Error ? 'has-error' : ''}`}
+        onSubmit={(e) => {
+          e.preventDefault()
+          onFetch()
+        }}
+      >
         <div className="url-field">
           <Icon name="link" size={20} />
           <input
             aria-label="TikTok carousel URL"
             name="url-input"
             id="url-input"
+            autoComplete="on"
             value={url}
             onChange={(event) => onUrlChange(event.target.value)}
             placeholder="Paste your TikTok carousel URL…"
@@ -56,8 +63,8 @@ export function Hero({
           )}
         </div>
         <Button
+          type="submit"
           className="fetch-button"
-          onClick={onFetch}
           disabled={status === Status.Loading}
         >
           {status === Status.Loading ? (
@@ -70,7 +77,7 @@ export function Hero({
             </>
           )}
         </Button>
-      </div>
+      </form>
       {status === Status.Error && <div className="field-error">{error}</div>}
     </section>
   )
