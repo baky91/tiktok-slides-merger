@@ -1,5 +1,4 @@
 import { useSettings } from '../contexts/SettingsProvider'
-import type { Format } from '../types'
 import { Button } from './Button'
 import { Icon } from './Icon'
 
