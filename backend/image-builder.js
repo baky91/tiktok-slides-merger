@@ -11,7 +11,7 @@ const MAX_DOWNLOAD_SIZE = 20_000_000;
 export const QUALITY_PRESETS = {
   standard: { maxPixels: 8_000_000, quality: 80 },
   high: { maxPixels: 24_000_000, quality: 90 },
-  max: { maxPixels: 60_000_000, quality: 95 },
+  // max: { maxPixels: 60_000_000, quality: 95 },
 };
 export const LAYOUTS = ["vertical", "horizontal", "grid"];
 export const MAX_IMAGES = 50;
