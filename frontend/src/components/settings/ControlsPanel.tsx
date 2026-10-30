@@ -12,6 +12,7 @@ type ControlsPanelProps = {
 
 export function ControlsPanel({ imageCount, maxColumns }: ControlsPanelProps) {
   const { layout, setLayout, format, setFormat } = useSettings()
+  const formats = Object.values(Format)
 
   return (
     <aside className="controls-panel">
@@ -60,20 +61,22 @@ export function ControlsPanel({ imageCount, maxColumns }: ControlsPanelProps) {
         )}
       </div>
 
-      <div className="control-section">
-        <div className="control-label">File format</div>
-        <div className="segmented">
-          {Object.values(Format).map((item) => (
-            <Button
-              key={item}
-              className={format === item ? 'active' : ''}
-              onClick={() => setFormat(item)}
-            >
-              {item}
-            </Button>
-          ))}
+      {formats.length > 1 && (
+        <div className="control-section">
+          <div className="control-label">File format</div>
+          <div className="segmented">
+            {formats.map((item) => (
+              <Button
+                key={item}
+                className={format === item ? 'active' : ''}
+                onClick={() => setFormat(item)}
+              >
+                {item}
+              </Button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <AdvancedSettings />
     </aside>

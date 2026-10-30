@@ -12,6 +12,7 @@ type QuickSettingsProps = {
 // Compact settings bar that stays pinned above the preview on mobile
 export function QuickSettings({ ref, maxColumns }: QuickSettingsProps) {
   const { layout, setLayout, format, setFormat } = useSettings()
+  const formats = Object.values(Format)
 
   return (
     <div ref={ref} className="quick-settings">
@@ -28,17 +29,19 @@ export function QuickSettings({ ref, maxColumns }: QuickSettingsProps) {
         ))}
       </div>
       {layout === Layout.Grid && <ColumnsStepper max={maxColumns} />}
-      <div className="segmented">
-        {Object.values(Format).map((item) => (
-          <Button
-            key={item}
-            className={format === item ? 'active' : ''}
-            onClick={() => setFormat(item)}
-          >
-            {item}
-          </Button>
-        ))}
-      </div>
+      {formats.length > 1 && (
+        <div className="segmented">
+          {formats.map((item) => (
+            <Button
+              key={item}
+              className={format === item ? 'active' : ''}
+              onClick={() => setFormat(item)}
+            >
+              {item}
+            </Button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
