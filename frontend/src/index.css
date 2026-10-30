@@ -116,7 +116,38 @@ button:disabled {
 
 .app-shell {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell > main {
+  flex: 1;
   padding-bottom: 56px;
+}
+
+.footer {
+  padding: 22px clamp(24px, 5vw, 76px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+  border-top: 1px solid #eceaf0;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.footer-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  color: #5f5b67;
+  transition: color .18s;
+}
+
+.footer-link:hover {
+  color: var(--color-ink);
 }
 
 .topbar {

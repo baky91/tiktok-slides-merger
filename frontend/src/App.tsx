@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { fetchTiktokImages, mergeTiktokImages } from './api'
 import { ControlsPanel } from './components/settings/ControlsPanel'
+import { Footer } from './components/Footer'
 import { Header } from './components/Header'
 import { Hero } from './components/Hero'
 import { QuickSettings } from './components/settings/QuickSettings'
@@ -140,6 +141,8 @@ function App() {
           />
         </section>
       </main>
+
+      <Footer />
 
       {toast && <Toast />}
     </div>

@@ -3,6 +3,7 @@ export type IconName =
   | 'chevron'
   | 'close'
   | 'download'
+  | 'github'
   | 'grid'
   | 'horizontal'
   | 'image'
