@@ -24,15 +24,15 @@ export function Hero({
       <div className="eyebrow">
         <Icon name="spark" size={14} /> TikTok carousel downloader
       </div>
-      <div className="hero-title">
+      <h1 className="hero-title">
         Turn TikTok Carousels
         <br />
         into a Single File
-      </div>
-      <div className="hero-copy">
+      </h1>
+      <p className="hero-copy">
         Paste a TikTok carousel link, customize the layout, and export
         <br className="desktop-break" /> all images as JPEG or PDF.
-      </div>
+      </p>
       <form
         className={`url-wrap ${status === Status.Error ? 'has-error' : ''}`}
         onSubmit={(e) => {

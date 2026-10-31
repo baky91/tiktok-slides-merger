@@ -2,12 +2,67 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>tiktok_slides_merger</title>
+
+    <title>SlidesMerger – Merge TikTok Carousel Images into One Image</title>
+    <meta
+      name="description"
+      content="Paste a TikTok carousel link and merge all its photos into a single image. Choose a vertical, horizontal or grid layout and download it as a JPEG."
+    />
+    <meta name="application-name" content="SlidesMerger" />
+    <meta name="theme-color" content="#faf9fc" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Link previews (Facebook, LinkedIn, Discord, Slack, WhatsApp…) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SlidesMerger" />
+    <meta
+      property="og:title"
+      content="SlidesMerger – Merge TikTok Carousel Images into One Image"
+    />
+    <meta
+      property="og:description"
+      content="Paste a TikTok carousel link and merge all its photos into a single image. Vertical, horizontal or grid layout."
+    />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Link previews (X / Twitter) -->
+    <meta name="twitter:card" content="summary" />
+    <meta
+      name="twitter:title"
+      content="SlidesMerger – Merge TikTok Carousel Images into One Image"
+    />
+    <meta
+      name="twitter:description"
+      content="Paste a TikTok carousel link and merge all its photos into a single image. Vertical, horizontal or grid layout."
+    />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "SlidesMerger",
+        "description": "Merge all the images of a TikTok carousel into a single image, with a vertical, horizontal or grid layout.",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "inLanguage": "en",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>SlidesMerger – Merge TikTok Carousel Images into One Image</h1>
+      <p>
+        Paste a TikTok carousel link, choose a vertical, horizontal or grid
+        layout, and download all its photos as a single image.
+      </p>
+      <p>JavaScript is required to use this tool.</p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

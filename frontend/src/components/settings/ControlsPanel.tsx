@@ -19,7 +19,7 @@ export function ControlsPanel({ imageCount, maxColumns }: ControlsPanelProps) {
       <div className="panel-heading">
         <div>
           <div className="section-kicker">Workspace</div>
-          <div className="panel-title">Customize your file</div>
+          <h2 className="panel-title">Customize your file</h2>
         </div>
         <div className="image-count">
           <Icon name="image" size={15} /> {imageCount} images

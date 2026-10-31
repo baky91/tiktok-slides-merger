@@ -32,7 +32,7 @@ export function PreviewPanel({
       <div className="preview-toolbar">
         <div>
           <div className="section-kicker">Live preview</div>
-          <div className="preview-title">Your merged carousel</div>
+          <h2 className="preview-title">Your merged carousel</h2>
         </div>
         <div className="canvas-meta">
           <span>{activeImages.length} images</span>
