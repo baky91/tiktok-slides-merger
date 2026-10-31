@@ -1,4 +1,4 @@
-import { Icon } from './Icon'
+import { Icon } from '../ui/Icon'
 
 const REPOSITORY_URL = 'https://github.com/baky91/tiktok-slides-merger'
 

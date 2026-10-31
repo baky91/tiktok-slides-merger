@@ -1,6 +1,6 @@
 import { useSettings } from '../../contexts/SettingsProvider'
 import { Layout, Status } from '../../types'
-import { ExportBar } from '../ExportBar'
+import { ExportBar } from './ExportBar'
 import { ImagePicker } from './ImagePicker'
 import { PreviewCanvas } from './PreviewCanvas'
 

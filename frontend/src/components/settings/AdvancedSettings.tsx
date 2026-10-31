@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Button } from '../Button'
-import { Icon } from '../Icon'
+import { Button } from '../ui/Button'
+import { Icon } from '../ui/Icon'
 import { LineColor, Quality } from '../../types'
 import { useSettings } from '../../contexts/SettingsProvider'
 

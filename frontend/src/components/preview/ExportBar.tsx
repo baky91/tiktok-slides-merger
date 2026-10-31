@@ -1,6 +1,6 @@
-import { useSettings } from '../contexts/SettingsProvider'
-import { Button } from './Button'
-import { Icon } from './Icon'
+import { useSettings } from '../../contexts/SettingsProvider'
+import { Button } from '../ui/Button'
+import { Icon } from '../ui/Icon'
 
 type ExportBarProps = {
   imageCount: number

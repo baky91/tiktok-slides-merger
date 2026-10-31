@@ -1,8 +1,8 @@
 import { Format, Layout } from '../../types'
 import { AdvancedSettings } from './AdvancedSettings'
-import { Button } from '../Button'
+import { Button } from '../ui/Button'
 import { ColumnsStepper } from './ColumnsStepper'
-import { Icon } from '../Icon'
+import { Icon } from '../ui/Icon'
 import { useSettings } from '../../contexts/SettingsProvider'
 
 type ControlsPanelProps = {

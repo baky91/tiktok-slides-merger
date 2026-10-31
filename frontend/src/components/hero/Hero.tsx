@@ -1,6 +1,6 @@
-import { Status } from '../types'
-import { Button } from './Button'
-import { Icon } from './Icon'
+import { Status } from '../../types'
+import { Button } from '../ui/Button'
+import { Icon } from '../ui/Icon'
 
 type HeroProps = {
   url: string
