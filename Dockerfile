@@ -17,11 +17,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY backend/package*.json ./
+COPY backend/ ./
 
 RUN npm ci
-
-COPY backend/*.js ./
 
 COPY --from=builder /app/frontend/dist ./public
 
