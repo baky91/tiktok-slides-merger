@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { fetchTiktokImages, mergeTiktokImages } from './api'
+import { fetchTiktokImages } from './api/scrape'
+import { mergeTiktokImages } from './api/merge'
 import { ControlsPanel } from './components/settings/ControlsPanel'
 import { Footer } from './components/layout/Footer'
 import { Header } from './components/layout/Header'

@@ -1,12 +1,4 @@
-import type { Layout, LineColor, Quality } from './types'
-
-export type TiktokCarousel = {
-  url: string
-  id: string
-  author: string | null
-  description: string
-  images: string[]
-}
+import type { Layout, LineColor, Quality } from '../types'
 
 export type ExportRequestBody = {
   layout: Layout
@@ -15,16 +7,6 @@ export type ExportRequestBody = {
   lineColor: LineColor
   qualityPreset: Quality
   images: string[]
-}
-
-export async function fetchTiktokImages(url: string): Promise<TiktokCarousel> {
-  const response = await fetch(`/api/images?url=${encodeURIComponent(url)}`)
-  const data = await response.json().catch(() => null)
-
-  if (!response.ok) {
-    throw new Error(data?.error ?? 'Unable to fetch images from this link.')
-  }
-  return data
 }
 
 // Returns the merged image; errors are sent back as JSON instead
