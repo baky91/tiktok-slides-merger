@@ -50,7 +50,18 @@ export async function resolveTiktokUrl(tiktokUrl) {
 
 export async function extractTiktokImages(tiktokUrl) {
   // Launch the browser in "headless" mode
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--disable-software-rasterizer",
+      "--disable-extensions",
+      "--single-process",
+    ],
+  });
   const context = await browser.newContext({ userAgent: USER_AGENT });
   const page = await context.newPage();
 

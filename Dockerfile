@@ -1,5 +1,5 @@
 ## === Build React APP
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app/frontend
 
@@ -10,18 +10,20 @@ RUN npm ci
 RUN npm run build
 
 ## === Run Server
-
-FROM mcr.microsoft.com/playwright:v1.64.1-noble
+FROM node:22-bookworm
 
 WORKDIR /app
-
-ENV NODE_ENV=production
 
 COPY backend/ ./
 
 RUN npm ci
 
+RUN npx playwright install chromium
+RUN npx playwright install-deps chromium
+
 COPY --from=builder /app/frontend/dist ./public
+
+ENV NODE_ENV=production
 
 ENV PORT=3001
 EXPOSE 3001
