@@ -3,9 +3,18 @@ import {
   extractTiktokImages,
   isTiktokUrl,
   resolveTiktokUrl,
-} from "../services/scrapper.js";
+} from "../services/scraper.js";
 
 const router = express.Router();
+
+// TODO: POST /api/scrape -> création file d'attente pour
+// router.post("/", (req, res) => {});
+
+// TODO: GET /api/scrape/:id -> récupérer infos file d'attente
+// router.get("/:id", (req, res) => {});
+
+// TODO: DELETE /api/scrape/:id -> annule une tâche si en attente
+// router.delete("/:id", (req, res) => {});
 
 // EX: GET /api/images?url=https://www.tiktok.com/@user/photo/123
 router.get("/", async (req, res) => {
