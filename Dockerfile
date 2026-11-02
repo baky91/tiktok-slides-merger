@@ -10,16 +10,13 @@ RUN npm ci
 RUN npm run build
 
 ## === Run Server
-FROM node:22-bookworm
+FROM node:22-slim
 
 WORKDIR /app
 
 COPY backend/ ./
 
 RUN npm ci
-
-RUN npx playwright install chromium
-RUN npx playwright install-deps chromium
 
 COPY --from=builder /app/frontend/dist ./public
 
