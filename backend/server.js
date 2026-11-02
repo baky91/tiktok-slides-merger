@@ -1,7 +1,8 @@
+import "dotenv/config";
 import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import scrapeRouter from "./routes/scrape.js";
+import imagesRouter from "./routes/images.js";
 import mergeRouter from "./routes/merge.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -11,7 +12,7 @@ const isProduction = NODE_ENV === "production";
 
 const app = express();
 app.use(express.json());
-app.use("/api/images", scrapeRouter);
+app.use("/api/images", imagesRouter);
 app.use("/api/merge", mergeRouter);
 
 if (isProduction) {
