@@ -17,7 +17,12 @@ router.get("/", async (req, res) => {
   let postId;
   try {
     const resolvedUrl = await resolveTiktokUrl(tiktokUrl);
+
     // pathname format : /@user/video/<postId>
+    // Remove the possible '/' at the end of the pathname
+    let pathname = resolvedUrl.pathname;
+    pathname = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+
     postId = resolvedUrl.pathname.split("/").at(-1);
   } catch (e) {
     return res.status(400).json({
@@ -29,14 +34,10 @@ router.get("/", async (req, res) => {
     const data = await fetchCarousel(postId);
     return res.status(200).json(data);
   } catch (e) {
-    // Errors we raised ourselves carry a message that is safe to show
-    if (e instanceof TiktokApiError) {
-      return res.status(e.status).json({ error: e.message });
-    }
-
-    // Anything else is a bug: log it, but never show its text to the user
-    console.error("Unexpected error in GET /api/images:", e);
-    return res.status(500).json({ error: "Something went wrong on our side." });
+    const status = e.status ?? 500;
+    return res.status(status).json({
+      error: e.message,
+    });
   }
 });
 
