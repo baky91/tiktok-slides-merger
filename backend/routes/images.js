@@ -1,6 +1,6 @@
 import express from "express";
 import { isTiktokUrl, resolveTiktokUrl } from "../utils/tiktok-url.js";
-import { fetchCarousel, TiktokApiError } from "../services/tiktok-api.js";
+import { fetchCarousel } from "../services/tiktok-api.js";
 
 const router = express.Router();
 
@@ -34,10 +34,14 @@ router.get("/", async (req, res) => {
     const data = await fetchCarousel(postId);
     return res.status(200).json(data);
   } catch (e) {
-    const status = e.status ?? 500;
-    return res.status(status).json({
-      error: e.message,
-    });
+    // Errors we raised ourselves carry a message that is safe to show
+    if (e instanceof TiktokApiError) {
+      return res.status(e.status).json({ error: e.message });
+    }
+
+    // Anything else is a bug: log it, but never show its text to the user
+    console.error("Unexpected error in GET /api/images:", e);
+    return res.status(500).json({ error: "Something went wrong on our side." });
   }
 });
 
