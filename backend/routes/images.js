@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
     let pathname = resolvedUrl.pathname;
     pathname = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
 
-    postId = resolvedUrl.pathname.split("/").at(-1);
+    postId = pathname.split("/").at(-1);
   } catch (e) {
     return res.status(400).json({
       error: e.message,
