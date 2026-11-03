@@ -3,6 +3,8 @@ const API_HOST = process.env.RAPIDAPI_HOST;
 
 const UNAVAILABLE_TEXT =
   "The service is temporarily unavailable. Please try again later.";
+const UNREACHABLE_TEXT = "We could not reach the service. Please try again.";
+const TIMEOUT_TEXT = "This is taking too long. Please try again in a moment.";
 
 export class TiktokApiError extends Error {
   constructor(status, message) {
@@ -12,15 +14,22 @@ export class TiktokApiError extends Error {
 }
 
 export async function fetchCarousel(postId) {
-  const response = await fetch(
-    `${API_HOST}/api/post/detail?videoId=${postId}`,
-    {
+  // Only the network call is wrapped: errors thrown below keep their own type
+  let response;
+  try {
+    response = await fetch(`${API_HOST}/api/post/detail?videoId=${postId}`, {
       headers: {
         "x-rapidapi-key": API_KEY,
       },
       signal: AbortSignal.timeout(10000),
-    },
-  );
+    });
+  } catch (e) {
+    console.error(`RapidAPI request failed (post ${postId}):`, e.message);
+    if (e.name === "TimeoutError") {
+      throw new TiktokApiError(504, TIMEOUT_TEXT);
+    }
+    throw new TiktokApiError(502, UNREACHABLE_TEXT);
+  }
 
   const statusCode = response.status;
 
@@ -28,20 +37,30 @@ export async function fetchCarousel(postId) {
     throw errorFromStatus(statusCode);
   }
 
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    console.error(
+      `RapidAPI returned an unreadable response (post ${postId}):`,
+      e.message,
+    );
+    throw new TiktokApiError(502, UNREACHABLE_TEXT);
+  }
 
-  const responseImages = data.itemInfo?.itemStruct?.imagePost?.images;
+  const responseImages = data?.itemInfo?.itemStruct?.imagePost?.images ?? [];
 
-  if (!responseImages || responseImages.length === 0) {
+  // Entries without a link are dropped, so the list never contains null
+  const images = responseImages
+    .map((imgObj) => imgObj.imageURL?.urlList?.[0])
+    .filter(Boolean);
+
+  if (images.length === 0) {
     throw new TiktokApiError(
       404,
       "Images not found, the post is probably not a carousel.",
     );
   }
-
-  const images = responseImages.map((imgObj) => {
-    return imgObj.imageURL.urlList[0];
-  });
 
   return {
     postId: postId,
@@ -65,9 +84,6 @@ function errorFromStatus(status) {
       return new TiktokApiError(503, UNAVAILABLE_TEXT);
     default:
       console.error(`RapidAPI answered with status ${status}`);
-      return new TiktokApiError(
-        502,
-        "We could not reach the service. Please try again.",
-      );
+      return new TiktokApiError(502, UNREACHABLE_TEXT);
   }
 }
