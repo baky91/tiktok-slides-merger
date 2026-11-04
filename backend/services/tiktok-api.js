@@ -21,12 +21,12 @@ export class TiktokApiError extends Error {
 export function fetchCarousel(postId) {
   const cached = cache.get(postId);
   if (cached) {
-    console.log(`Get response from cache (${postId})`);
+    // console.log(`Get response from cache (${postId})`);
     return Promise.resolve(cached);
   }
 
   if (inFlight.has(postId)) {
-    console.log(`Request in-flight (${postId})`);
+    // console.log(`Request in-flight (${postId})`);
     return inFlight.get(postId);
   }
 
