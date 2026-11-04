@@ -4,29 +4,6 @@
 # regardless of where it is run from
 cd "$(dirname "$0")"
 
-# Check Playwright browser installation
-PLAYWRIGHT_CACHE="$HOME/.cache/ms-playwright"
-if [ ! -d "$PLAYWRIGHT_CACHE" ] || [ -z "$(ls -A "$PLAYWRIGHT_CACHE" 2>/dev/null)" ]; then
-    echo "⚠️ Playwright browsers do not appear to be installed."
-    read -p "Would you like to install them now (npm run install-browser)? (y/n): " choice
-    case "$choice" in
-        [yY] | [yY][eE][sS] )
-            cd backend
-            echo "Starting installation..."
-            npm run install-browser
-            if [ $? -ne 0 ]; then
-                echo "Error during Playwright browser installation. Aborting script."
-                exit 1
-            fi
-            cd ..
-            ;;
-        * )
-            echo "Installation declined. Aborting script."
-            exit 1
-            ;;
-    esac
-fi
-
 # Build React App
 cd frontend
 npm run build
