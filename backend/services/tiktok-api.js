@@ -1,3 +1,5 @@
+import { createCache } from "./cache.js";
+
 const API_KEY = process.env.RAPIDAPI_API_KEY;
 const API_HOST = process.env.RAPIDAPI_HOST;
 
@@ -6,6 +8,9 @@ const UNAVAILABLE_TEXT =
 const UNREACHABLE_TEXT = "We could not reach the service. Please try again.";
 const TIMEOUT_TEXT = "This is taking too long. Please try again in a moment.";
 
+const cache = createCache({ ttlMs: 10 * 60 * 1000, maxEntries: 500 });
+const inFlight = new Map();
+
 export class TiktokApiError extends Error {
   constructor(status, message) {
     super(message);
@@ -13,7 +18,30 @@ export class TiktokApiError extends Error {
   }
 }
 
-export async function fetchCarousel(postId) {
+export function fetchCarousel(postId) {
+  const cached = cache.get(postId);
+  if (cached) {
+    console.log(`Get response from cache (${postId})`);
+    return Promise.resolve(cached);
+  }
+
+  if (inFlight.has(postId)) {
+    console.log(`Request in-flight (${postId})`);
+    return inFlight.get(postId);
+  }
+
+  const promise = fetchFromApi(postId)
+    .then((carousel) => {
+      cache.set(postId, carousel);
+      return carousel;
+    })
+    .finally(() => inFlight.delete(postId));
+
+  inFlight.set(postId, promise);
+  return promise;
+}
+
+async function fetchFromApi(postId) {
   // Only the network call is wrapped: errors thrown below keep their own type
   let response;
   try {
