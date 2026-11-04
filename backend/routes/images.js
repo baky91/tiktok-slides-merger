@@ -1,6 +1,6 @@
 import express from "express";
 import { isTiktokUrl, resolveTiktokUrl } from "../utils/tiktok-url.js";
-import { fetchCarousel } from "../services/tiktok-api.js";
+import { fetchCarousel, TiktokApiError } from "../services/tiktok-api.js";
 
 const router = express.Router();
 
