@@ -1,12 +1,20 @@
 import { useState } from 'react'
 import { Button } from '../ui/Button'
 import { Icon } from '../ui/Icon'
-import { LineColor, Quality } from '../../types'
+import { BackgroundColor, LineColor, Quality } from '../../types'
 import { useSettings } from '../../contexts/SettingsProvider'
 
 export function AdvancedSettings() {
-  const { spacing, setSpacing, lineColor, setLineColor, quality, setQuality } =
-    useSettings()
+  const {
+    spacing,
+    setSpacing,
+    lineColor,
+    setLineColor,
+    backgroundColor,
+    setBackgroundColor,
+    quality,
+    setQuality,
+  } = useSettings()
   const [open, setOpen] = useState(false)
 
   return (
@@ -47,6 +55,22 @@ export function AdvancedSettings() {
                   className={lineColor === item ? 'selected' : ''}
                   style={{ background: item }}
                   onClick={() => setLineColor(item)}
+                ></i>
+              ))}
+            </div>
+          </div>
+
+          <div className="background-color-setting">
+            <span>Background color</span>
+            <div className="color-options">
+              {Object.entries(BackgroundColor).map(([name, item]) => (
+                <i
+                  key={item}
+                  role="button"
+                  aria-label={`Background color ${name}`}
+                  className={backgroundColor === item ? 'selected' : ''}
+                  style={{ background: item }}
+                  onClick={() => setBackgroundColor(item)}
                 ></i>
               ))}
             </div>

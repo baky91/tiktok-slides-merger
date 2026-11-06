@@ -47,3 +47,10 @@ export const LineColor = {
   black: '#000000',
 } as const
 export type LineColor = (typeof LineColor)[keyof typeof LineColor]
+
+export const BackgroundColor = {
+  white: '#ffffff',
+  black: '#000000',
+} as const
+export type BackgroundColor =
+  (typeof BackgroundColor)[keyof typeof BackgroundColor]

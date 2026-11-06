@@ -609,7 +609,8 @@ main {
   min-width: 0;
 }
 
-.line-color-setting {
+.line-color-setting,
+.background-color-setting {
   padding-top: 12px;
   display: flex;
   justify-content: space-between;

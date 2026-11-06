@@ -47,7 +47,7 @@ export function PreviewCanvas({
   hasSlides,
   loading,
 }: PreviewCanvasProps) {
-  const { layout, columns, spacing, lineColor } = useSettings()
+  const { layout, columns, spacing, lineColor, backgroundColor } = useSettings()
 
   const [view, setView] = useState<View>({ x: 0, y: 0, scale: 1 })
   const stageRef = useRef<HTMLDivElement>(null)

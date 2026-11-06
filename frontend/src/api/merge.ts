@@ -1,10 +1,11 @@
-import type { Layout, LineColor, Quality } from '../types'
+import type { BackgroundColor, Layout, LineColor, Quality } from '../types'
 
 export type ExportRequestBody = {
   layout: Layout
   columns: number
   spacing: number
   lineColor: LineColor
+  backgroundColor: BackgroundColor
   qualityPreset: Quality
   images: string[]
 }

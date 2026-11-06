@@ -12,7 +12,15 @@ import { PreviewPanel } from './components/preview/PreviewPanel'
 import { useSettings } from './contexts/SettingsProvider'
 
 function App() {
-  const { layout, format, quality, columns, spacing, lineColor } = useSettings()
+  const {
+    layout,
+    format,
+    quality,
+    columns,
+    spacing,
+    lineColor,
+    backgroundColor,
+  } = useSettings()
 
   const [url, setUrl] = useState('')
   const [status, setStatus] = useState<Status>(Status.Idle)
@@ -86,6 +94,7 @@ function App() {
         columns: columns,
         spacing: spacing,
         lineColor: lineColor,
+        backgroundColor: backgroundColor,
         qualityPreset: quality,
         images: activeImages,
       })

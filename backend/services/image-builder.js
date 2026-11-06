@@ -26,6 +26,7 @@ export function parseMergeBody(body) {
     columns = 2,
     spacing = 0,
     lineColor = "#ffffff",
+    backgroundColor = "#ffffff",
     qualityPreset = "high",
   } = body ?? {};
 
@@ -55,6 +56,12 @@ export function parseMergeBody(body) {
   if (typeof lineColor !== "string" || !/^#[0-9a-f]{6}$/i.test(lineColor)) {
     return { error: "'lineColor' must be a hex color like #ffffff" };
   }
+  if (
+    typeof backgroundColor !== "string" ||
+    !/^#[0-9a-f]{6}$/i.test(lineColor)
+  ) {
+    return { error: "'lineColor' must be a hex color like #ffffff" };
+  }
   const preset = QUALITY_PRESETS[String(qualityPreset).toLowerCase()];
   if (!preset) {
     return {
@@ -64,7 +71,14 @@ export function parseMergeBody(body) {
 
   return {
     images,
-    options: { layout, columns, spacing, lineColor, ...preset },
+    options: {
+      layout,
+      columns,
+      spacing,
+      lineColor,
+      backgroundColor,
+      ...preset,
+    },
   };
 }
 
@@ -103,7 +117,8 @@ async function loadImage(image) {
  * @param {"vertical" | "horizontal" | "grid"} [options.layout]
  * @param {number} [options.columns] Maximum number of columns in grid layout
  * @param {number} [options.spacing] Gap between images, as a percentage of the image width
- * @param {string} [options.lineColor] Color of the lines between images and of empty cells
+ * @param {string} [options.lineColor] Color of the lines between images
+ * @param {string} [options.backgroundColor] Color of the background behind images and empty cells
  * @param {number} [options.maxSide] Maximum width/height of the output, in px
  * @param {number} [options.maxPixels] Maximum width × height of the output
  * @param {number} [options.quality] JPEG quality (1-100)
@@ -116,6 +131,7 @@ export async function mergeImages(
     columns = 2,
     spacing = 0,
     lineColor = "#ffffff",
+    backgroundColor = "#ffffff",
     maxSide = JPEG_MAX_SIDE,
     maxPixels = Infinity,
     quality = 90,
@@ -176,7 +192,7 @@ export async function mergeImages(
   );
 
   const buffer = await sharp({
-    create: { width, height, channels: 3, background: lineColor },
+    create: { width, height, channels: 3, background: backgroundColor },
     limitInputPixels: false,
   })
     .composite(tiles)
