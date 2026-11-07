@@ -23,7 +23,6 @@ export type Layout = (typeof Layout)[keyof typeof Layout]
 export const Format = {
   JPEG: 'JPEG',
   // PNG: 'PNG',
-  // PDF: 'PDF',
 } as const
 export type Format = (typeof Format)[keyof typeof Format]
 
@@ -42,8 +41,9 @@ export const Status = {
 } as const
 export type Status = (typeof Status)[keyof typeof Status]
 
-export const LineColor = {
+// Palette shared by the line color and the background color
+export const Color = {
   white: '#ffffff',
   black: '#000000',
 } as const
-export type LineColor = (typeof LineColor)[keyof typeof LineColor]
+export type Color = (typeof Color)[keyof typeof Color]

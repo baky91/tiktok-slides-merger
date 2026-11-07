@@ -18,6 +18,9 @@ export const MAX_IMAGES = 50;
 // Gap between images, as a percentage of the image width
 export const MAX_SPACING = 20;
 
+const HEX_COLOR = /^#[0-9a-f]{6}$/i;
+const isHexColor = (value) => typeof value === "string" && HEX_COLOR.test(value);
+
 // Validates the merge request body, filling in defaults for missing options
 export function parseMergeBody(body) {
   const {
@@ -26,6 +29,8 @@ export function parseMergeBody(body) {
     columns = 2,
     spacing = 0,
     lineColor = "#ffffff",
+    // Same as the lines when not given, which is how images were drawn before
+    backgroundColor = lineColor,
     qualityPreset = "high",
   } = body ?? {};
 
@@ -52,8 +57,11 @@ export function parseMergeBody(body) {
       error: `'spacing' must be a number between 0 and ${MAX_SPACING}`,
     };
   }
-  if (typeof lineColor !== "string" || !/^#[0-9a-f]{6}$/i.test(lineColor)) {
+  if (!isHexColor(lineColor)) {
     return { error: "'lineColor' must be a hex color like #ffffff" };
+  }
+  if (!isHexColor(backgroundColor)) {
+    return { error: "'backgroundColor' must be a hex color like #ffffff" };
   }
   const preset = QUALITY_PRESETS[String(qualityPreset).toLowerCase()];
   if (!preset) {
@@ -64,7 +72,14 @@ export function parseMergeBody(body) {
 
   return {
     images,
-    options: { layout, columns, spacing, lineColor, ...preset },
+    options: {
+      layout,
+      columns,
+      spacing,
+      lineColor,
+      backgroundColor,
+      ...preset,
+    },
   };
 }
 
@@ -96,14 +111,18 @@ async function loadImage(image) {
  *
  * Every image is resized to a common cell width (the narrowest image, so
  * nothing is upscaled), like the HTML preview grid. A row is as tall as its
- * tallest image, and images are placed in the top-left corner of their cell.
+ * tallest image: a shorter image is centered vertically in its cell, and the
+ * space around it is filled with the background color. The cells missing at
+ * the end of an incomplete last row are filled with the background color too,
+ * and the lines between cells use the line color.
  *
  * @param {(string | Buffer)[]} images URLs, file paths or buffers, in display order
  * @param {object} [options]
  * @param {"vertical" | "horizontal" | "grid"} [options.layout]
  * @param {number} [options.columns] Maximum number of columns in grid layout
  * @param {number} [options.spacing] Gap between images, as a percentage of the image width
- * @param {string} [options.lineColor] Color of the lines between images and of empty cells
+ * @param {string} [options.lineColor] Color of the lines between cells
+ * @param {string} [options.backgroundColor] Color of the cells behind images and empty cells
  * @param {number} [options.maxSide] Maximum width/height of the output, in px
  * @param {number} [options.maxPixels] Maximum width × height of the output
  * @param {number} [options.quality] JPEG quality (1-100)
@@ -116,6 +135,7 @@ export async function mergeImages(
     columns = 2,
     spacing = 0,
     lineColor = "#ffffff",
+    backgroundColor = lineColor,
     maxSide = JPEG_MAX_SIDE,
     maxPixels = Infinity,
     quality = 90,
@@ -158,28 +178,57 @@ export async function mergeImages(
   // Flooring every dimension keeps the scaled output within the limits
   const cellWidth = Math.max(1, Math.floor(fullCellWidth * scale));
   const gap = Math.floor(fullGap * scale);
-  const { width, height, cells } = computeLayout(
+  const { width, height, cells, emptyCells } = computeLayout(
     sizes,
     columnCount,
     cellWidth,
     gap,
   );
 
+  // An image shorter than its row is centered: the space above and below it
+  // is painted with the background color
   const tiles = await Promise.all(
-    images.map(async (image, index) => ({
-      input: await sharp(image)
-        .resize({ width: cellWidth, height: cells[index].height, fit: "fill" })
-        .toBuffer(),
-      left: cells[index].left,
-      top: cells[index].top,
-    })),
+    images.map(async (image, index) => {
+      const cell = cells[index];
+      const missing = cell.rowHeight - cell.height;
+      const top = Math.floor(missing / 2);
+
+      let tile = sharp(image).resize({
+        width: cellWidth,
+        height: cell.height,
+        fit: "fill",
+      });
+      if (missing > 0) {
+        tile = tile.extend({
+          top,
+          bottom: missing - top,
+          background: backgroundColor,
+        });
+      }
+      return { input: await tile.toBuffer(), left: cell.left, top: cell.top };
+    }),
   );
 
+  // The cells missing at the end of an incomplete last row get the background color
+  const emptyTiles = emptyCells.map((cell) => ({
+    input: {
+      create: {
+        width: cellWidth,
+        height: cell.height,
+        channels: 3,
+        background: backgroundColor,
+      },
+    },
+    left: cell.left,
+    top: cell.top,
+  }));
+
+  // The canvas shows through between the cells: it is the color of the lines
   const buffer = await sharp({
     create: { width, height, channels: 3, background: lineColor },
     limitInputPixels: false,
   })
-    .composite(tiles)
+    .composite([...tiles, ...emptyTiles])
     .jpeg({ quality })
     .toBuffer();
 
@@ -205,15 +254,35 @@ function computeLayout(sizes, columnCount, cellWidth, gap) {
     top += rowHeight + gap;
   }
 
-  const cells = heights.map((height, index) => ({
-    left: (index % columnCount) * (cellWidth + gap),
-    top: rowTops[Math.floor(index / columnCount)],
-    height,
-  }));
+  const cells = heights.map((height, index) => {
+    const row = Math.floor(index / columnCount);
+    return {
+      left: (index % columnCount) * (cellWidth + gap),
+      top: rowTops[row],
+      height,
+      rowHeight: rowHeights[row],
+    };
+  });
+
+  // Cells missing at the end of the last row, when the images do not fill it
+  const emptyCells = [];
+  const lastRow = rowHeights.length - 1;
+  for (
+    let column = heights.length - lastRow * columnCount;
+    column < columnCount;
+    column++
+  ) {
+    emptyCells.push({
+      left: column * (cellWidth + gap),
+      top: rowTops[lastRow],
+      height: rowHeights[lastRow],
+    });
+  }
 
   return {
     width: columnCount * cellWidth + (columnCount - 1) * gap,
     height: top - gap,
     cells,
+    emptyCells,
   };
 }

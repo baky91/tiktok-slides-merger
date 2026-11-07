@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { fetchTiktokImages } from './api/scrape'
+import { fetchTiktokImages } from './api/images'
 import { mergeTiktokImages } from './api/merge'
 import { ControlsPanel } from './components/settings/ControlsPanel'
 import { Footer } from './components/layout/Footer'
@@ -10,9 +10,19 @@ import { Toast } from './components/ui/Toast'
 import { Status } from './types'
 import { PreviewPanel } from './components/preview/PreviewPanel'
 import { useSettings } from './contexts/SettingsProvider'
+import { defaultColumnCount, MIN_COLUMNS } from './utils/grid'
 
 function App() {
-  const { layout, format, quality, columns, spacing, lineColor } = useSettings()
+  const {
+    layout,
+    format,
+    quality,
+    columns,
+    setColumns,
+    spacing,
+    lineColor,
+    backgroundColor,
+  } = useSettings()
 
   const [url, setUrl] = useState('')
   const [status, setStatus] = useState<Status>(Status.Idle)
@@ -28,8 +38,7 @@ function App() {
     [images, excludedImages]
   )
   // A grid can have as many columns as there are selected images
-  const maxColumns = Math.max(2, activeImages.length)
-  // const gridColumns = Math.min(columns, maxColumns)
+  const maxColumns = Math.max(MIN_COLUMNS, activeImages.length)
 
   const toggleImage = (image: string) => {
     setExcludedImages((current) => {
@@ -69,6 +78,7 @@ function App() {
     try {
       const carousel = await fetchTiktokImages(url)
       setImages(carousel.images)
+      setColumns(defaultColumnCount(carousel.images.length))
       setExcludedImages(new Set())
       setStatus(Status.Ready)
     } catch (err) {
@@ -86,6 +96,7 @@ function App() {
         columns: columns,
         spacing: spacing,
         lineColor: lineColor,
+        backgroundColor: backgroundColor,
         qualityPreset: quality,
         images: activeImages,
       })

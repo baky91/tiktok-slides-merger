@@ -1,6 +1,7 @@
 import { useSettings } from '../../contexts/SettingsProvider'
 import { Button } from '../ui/Button'
 import { Icon } from '../ui/Icon'
+import { MIN_COLUMNS } from '../../utils/grid'
 
 type ColumnsStepperProps = {
   max: number
@@ -13,8 +14,8 @@ export function ColumnsStepper({ max }: ColumnsStepperProps) {
     <div className="stepper">
       <Button
         aria-label="Decrease columns"
-        disabled={columns <= 2}
-        onClick={() => setColumns(Math.max(2, columns - 1))}
+        disabled={columns <= MIN_COLUMNS}
+        onClick={() => setColumns(Math.max(MIN_COLUMNS, columns - 1))}
       >
         <Icon name="minus" size={14} />
       </Button>
