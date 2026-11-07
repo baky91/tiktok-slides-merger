@@ -31,7 +31,7 @@ export function Hero({
       </h1>
       <p className="hero-copy">
         Paste a TikTok carousel link, customize the layout, and export
-        <br className="desktop-break" /> all images as JPEG or PDF.
+        <br className="desktop-break" /> all images as a single JPEG.
       </p>
       <form
         className={`url-wrap ${status === Status.Error ? 'has-error' : ''}`}

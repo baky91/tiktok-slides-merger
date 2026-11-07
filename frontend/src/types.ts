@@ -23,7 +23,6 @@ export type Layout = (typeof Layout)[keyof typeof Layout]
 export const Format = {
   JPEG: 'JPEG',
   // PNG: 'PNG',
-  // PDF: 'PDF',
 } as const
 export type Format = (typeof Format)[keyof typeof Format]
 

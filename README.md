@@ -16,8 +16,8 @@ everything merged into one JPEG.
 - Live preview with drag to move and scroll / pinch to zoom
 - Responsive interface (desktop and mobile)
 
-Only JPEG export is available for now. PDF and PNG are planned (the PDF option
-is disabled in `frontend/src/types.ts`).
+Only JPEG export is available for now. PNG is planned (the PNG option is
+disabled in `frontend/src/types.ts`).
 
 ## How it works
 
