@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import { Color, Format, Layout, Quality } from '../types'
+import { MIN_COLUMNS } from '../utils/grid'
 
 interface SettingsContextType {
   layout: Layout
@@ -22,6 +23,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
   undefined
 )
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSettings(): SettingsContextType {
   const context = useContext(SettingsContext)
   if (!context)
@@ -33,7 +35,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [layout, setLayout] = useState<Layout>(Layout.Grid)
   const [format, setFormat] = useState<Format>(Format.JPEG)
   const [quality, setQuality] = useState<Quality>(Quality.Standard)
-  const [columns, setColumns] = useState(2)
+  const [columns, setColumns] = useState<number>(MIN_COLUMNS)
   // Gap between images, as a percentage of the image width
   const [spacing, setSpacing] = useState(1)
   const [lineColor, setLineColor] = useState<Color>(Color.black)

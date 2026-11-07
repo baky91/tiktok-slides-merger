@@ -609,13 +609,17 @@ main {
   min-width: 0;
 }
 
-.color-setting {
+.color-setting,
+.quality-setting {
   padding-top: 12px;
+  border-top: 1px solid #e6e2e8;
+}
+
+.color-setting {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  border-top: 1px solid #e6e2e8;
 }
 
 .color-setting-text {

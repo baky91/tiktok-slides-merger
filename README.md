@@ -234,7 +234,7 @@ Invalid values return `400` with `{ "error": "…" }`.
 │   ├── public/               # favicon, robots.txt
 │   └── src/
 │       ├── App.tsx
-│       ├── api/              # Calls to the backend (scrape.ts, merge.ts)
+│       ├── api/              # Calls to the backend (images.ts, merge.ts)
 │       ├── types.ts          # Layout, Format, Quality, Color…
 │       ├── contexts/         # SettingsProvider (layout, columns, spacing…)
 │       └── components/       # hero/, layout/, preview/, settings/, ui/

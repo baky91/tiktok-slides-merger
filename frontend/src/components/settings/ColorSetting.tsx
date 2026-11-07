@@ -17,7 +17,7 @@ export function ColorSetting({
   return (
     <div className="color-setting">
       <div className="color-setting-text">
-        <span>{label}</span>
+        <span className="control-label">{label}</span>
         <small>{hint}</small>
       </div>
       <div className="color-options">

@@ -59,16 +59,21 @@ export function AdvancedSettings() {
             onChange={setBackgroundColor}
           />
 
-          <div className="segmented">
-            {Object.values(Quality).map((item) => (
-              <Button
-                key={item}
-                className={quality === item ? 'active' : ''}
-                onClick={() => setQuality(item)}
-              >
-                {item}
-              </Button>
-            ))}
+          <div className="quality-setting">
+            <div className="label-row">
+              <span className="control-label">Quality preset</span>
+            </div>
+            <div className="segmented">
+              {Object.values(Quality).map((item) => (
+                <Button
+                  key={item}
+                  className={quality === item ? 'active' : ''}
+                  onClick={() => setQuality(item)}
+                >
+                  {item}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
       )}
