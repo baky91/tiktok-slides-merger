@@ -609,13 +609,24 @@ main {
   min-width: 0;
 }
 
-.line-color-setting,
-.background-color-setting {
+.color-setting {
   padding-top: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   border-top: 1px solid #e6e2e8;
+}
+
+.color-setting-text {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.color-setting-text small {
+  font-size: 9px;
+  color: #a09bab;
 }
 
 .color-options {
@@ -623,7 +634,8 @@ main {
   gap: 5px;
 }
 
-.color-options i {
+.color-options button {
+  flex: none;
   width: 15px;
   height: 15px;
   border-radius: 50%;
@@ -631,9 +643,13 @@ main {
   border: 1px solid #d8d4dc;
 }
 
-.color-options i.selected {
-  /* box-shadow: 0 0 0 2px #6848e5; */
+.color-options button.selected {
   border-color: #6848e5;
+}
+
+.color-options button:focus-visible {
+  outline: 2px solid #6848e5;
+  outline-offset: 2px;
 }
 
 .preview-panel {
@@ -733,20 +749,27 @@ main {
   overflow: hidden;
 }
 
+/* A cell is as tall as the tallest image of its row (the grid stretches it);
+   a shorter image stays centered, like in the exported file */
 .photo-card {
   min-width: 0;
-  aspect-ratio: 4/5;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
   background: #ddd;
 }
 
 .photo-card img {
   width: 100%;
-  height: 100%;
+  height: auto;
   display: block;
-  object-fit: cover;
   transition: transform .35s;
+}
+
+/* Provisional shape until the image is loaded */
+.photo-card img:not([data-loaded]) {
+  aspect-ratio: 4 / 5;
 }
 
 .image-picker {

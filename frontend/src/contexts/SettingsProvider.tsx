@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
-import { BackgroundColor, Format, Layout, LineColor, Quality } from '../types'
+import { Color, Format, Layout, Quality } from '../types'
 
 interface SettingsContextType {
   layout: Layout
@@ -7,15 +7,15 @@ interface SettingsContextType {
   format: Format
   quality: Quality
   spacing: number
-  lineColor: LineColor
-  backgroundColor: BackgroundColor
+  lineColor: Color
+  backgroundColor: Color
   setLayout: (layout: Layout) => void
   setColumns: (columns: number) => void
   setFormat: (format: Format) => void
   setQuality: (quality: Quality) => void
   setSpacing: (spacing: number) => void
-  setLineColor: (lineColor: LineColor) => void
-  setBackgroundColor: (backgroundColor: BackgroundColor) => void
+  setLineColor: (lineColor: Color) => void
+  setBackgroundColor: (backgroundColor: Color) => void
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
@@ -36,10 +36,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [columns, setColumns] = useState(2)
   // Gap between images, as a percentage of the image width
   const [spacing, setSpacing] = useState(1)
-  const [lineColor, setLineColor] = useState<LineColor>(LineColor.black)
-  const [backgroundColor, setBackgroundColor] = useState<BackgroundColor>(
-    BackgroundColor.white
-  )
+  const [lineColor, setLineColor] = useState<Color>(Color.black)
+  const [backgroundColor, setBackgroundColor] = useState<Color>(Color.white)
 
   const value: SettingsContextType = {
     layout,

@@ -11,7 +11,7 @@ everything merged into one JPEG.
   links and `vm.` / `vt.` short links)
 - Slide picker: include or exclude each image
 - Three layouts: **vertical**, **horizontal** and **grid** (with a chosen number of columns)
-- Adjustable spacing between images and **line color** (white or black)
+- Adjustable spacing between images, **line color** and **background color** (white or black)
 - Two quality levels: **Standard** and **High**
 - Live preview with drag to move and scroll / pinch to zoom
 - Responsive interface (desktop and mobile)
@@ -175,6 +175,7 @@ curl -X POST http://localhost:3000/api/merge \
         "columns": 2,
         "spacing": 3,
         "lineColor": "#000000",
+        "backgroundColor": "#ffffff",
         "qualityPreset": "high"
       }' \
   --output merged.jpeg
@@ -186,7 +187,8 @@ curl -X POST http://localhost:3000/api/merge \
 | `layout`        | string   | `grid`      | `vertical`, `horizontal` or `grid`                                     |
 | `columns`       | integer  | `2`         | Number of columns, used by the `grid` layout                           |
 | `spacing`       | number   | `0`         | Gap between images, from 0 to 20, as a **percentage of the image width** |
-| `lineColor`     | string   | `#ffffff`   | Color of the lines between images, as a `#rrggbb` hex color            |
+| `lineColor`     | string   | `#ffffff`   | Color of the lines between the images, as a `#rrggbb` hex color       |
+| `backgroundColor` | string | same as `lineColor` | Color of the cells behind images that are shorter than the tallest image of their row, and of the empty cells of an incomplete last row, as a `#rrggbb` hex color |
 | `qualityPreset` | string   | `high`      | `standard`, `high` (case-insensitive)                         |
 
 Invalid values return `400` with `{ "error": "…" }`.
@@ -201,7 +203,11 @@ Invalid values return `400` with `{ "error": "…" }`.
 **How images are merged**
 
 - Every image is resized to the width of the narrowest one, so nothing is upscaled.
-- A row is as tall as its tallest image.
+- A row is as tall as its tallest image. A shorter image is centered vertically
+  in its cell, and the space around it is filled with `backgroundColor`.
+- The cells missing at the end of an incomplete last row (for example 7 images
+  in 3 columns) are filled with `backgroundColor` too. The lines between the
+  cells use `lineColor`.
 - When the result exceeds the size of the preset, or JPEG's limit of 65,500 px per
   side, everything (spacing included) is reduced by the same factor.
 - Only images hosted on TikTok's CDN (`tiktokcdn*.com`) are downloaded, with a
@@ -229,7 +235,7 @@ Invalid values return `400` with `{ "error": "…" }`.
 │   └── src/
 │       ├── App.tsx
 │       ├── api/              # Calls to the backend (scrape.ts, merge.ts)
-│       ├── types.ts          # Layout, Format, Quality, LineColor…
+│       ├── types.ts          # Layout, Format, Quality, Color…
 │       ├── contexts/         # SettingsProvider (layout, columns, spacing…)
 │       └── components/       # hero/, layout/, preview/, settings/, ui/
 ├── Dockerfile

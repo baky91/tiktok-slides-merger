@@ -22,6 +22,12 @@ const FIT_PADDING = 48
 const clampScale = (scale: number) =>
   Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale))
 
+// Until an image is loaded its card keeps a provisional 4:5 shape (see index.css),
+// so the grid does not jump around while the images arrive
+const markIfLoaded = (image: HTMLImageElement | null) => {
+  if (image?.complete) image.dataset.loaded = 'true'
+}
+
 // Zooms around `point` (in stage coordinates) so that it stays fixed on screen
 function zoomAt(view: View, point: Point, nextScale: number): View {
   const scale = clampScale(nextScale)
@@ -62,6 +68,10 @@ export function PreviewCanvas({
       : layout === Layout.Horizontal
         ? images.length
         : Math.min(columns, images.length)
+
+  // The last row of a grid can be incomplete: its missing cells show the background color
+  const rowCount = columnCount > 0 ? Math.ceil(images.length / columnCount) : 0
+  const emptyCellCount = rowCount * columnCount - images.length
 
   const fit = useCallback(() => {
     const stage = stageRef.current
@@ -225,15 +235,28 @@ export function PreviewCanvas({
               }}
             >
               {images.map((image, index) => (
-                <div className="photo-card" key={image}>
+                <div
+                  className="photo-card"
+                  key={image}
+                  style={{ background: backgroundColor }}
+                >
                   {/* TikTok's CDN rejects requests carrying a foreign Referer */}
                   <img
                     src={image}
                     alt={`Carousel image ${index + 1}`}
                     referrerPolicy="no-referrer"
                     draggable={false}
+                    ref={markIfLoaded}
+                    onLoad={(event) => markIfLoaded(event.currentTarget)}
                   />
                 </div>
+              ))}
+              {Array.from({ length: emptyCellCount }, (_, index) => (
+                <div
+                  className="photo-card"
+                  key={`empty-${index}`}
+                  style={{ background: backgroundColor }}
+                />
               ))}
             </div>
           </div>

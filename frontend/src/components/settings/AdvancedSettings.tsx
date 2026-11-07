@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Button } from '../ui/Button'
 import { Icon } from '../ui/Icon'
-import { BackgroundColor, LineColor, Quality } from '../../types'
+import { Quality } from '../../types'
 import { useSettings } from '../../contexts/SettingsProvider'
+import { ColorSetting } from './ColorSetting'
 
 export function AdvancedSettings() {
   const {
@@ -44,37 +45,19 @@ export function AdvancedSettings() {
               <span>Wide</span>
             </div>
           </div>
-          <div className="line-color-setting">
-            <span>Line color</span>
-            <div className="color-options">
-              {Object.entries(LineColor).map(([name, item]) => (
-                <i
-                  key={item}
-                  role="button"
-                  aria-label={`Line color ${name}`}
-                  className={lineColor === item ? 'selected' : ''}
-                  style={{ background: item }}
-                  onClick={() => setLineColor(item)}
-                ></i>
-              ))}
-            </div>
-          </div>
+          <ColorSetting
+            label="Line color"
+            hint="Between the images"
+            value={lineColor}
+            onChange={setLineColor}
+          />
 
-          <div className="background-color-setting">
-            <span>Background color</span>
-            <div className="color-options">
-              {Object.entries(BackgroundColor).map(([name, item]) => (
-                <i
-                  key={item}
-                  role="button"
-                  aria-label={`Background color ${name}`}
-                  className={backgroundColor === item ? 'selected' : ''}
-                  style={{ background: item }}
-                  onClick={() => setBackgroundColor(item)}
-                ></i>
-              ))}
-            </div>
-          </div>
+          <ColorSetting
+            label="Background color"
+            hint="Behind smaller images and empty cells"
+            value={backgroundColor}
+            onChange={setBackgroundColor}
+          />
 
           <div className="segmented">
             {Object.values(Quality).map((item) => (

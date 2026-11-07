@@ -42,15 +42,9 @@ export const Status = {
 } as const
 export type Status = (typeof Status)[keyof typeof Status]
 
-export const LineColor = {
+// Palette shared by the line color and the background color
+export const Color = {
   white: '#ffffff',
   black: '#000000',
 } as const
-export type LineColor = (typeof LineColor)[keyof typeof LineColor]
-
-export const BackgroundColor = {
-  white: '#ffffff',
-  black: '#000000',
-} as const
-export type BackgroundColor =
-  (typeof BackgroundColor)[keyof typeof BackgroundColor]
+export type Color = (typeof Color)[keyof typeof Color]
